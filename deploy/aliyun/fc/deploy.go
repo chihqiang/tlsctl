@@ -3,13 +3,15 @@ package fc
 import (
 	"context"
 	"fmt"
+
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/caarlos0/env/v11"
 	"github.com/go-acme/lego/v4/certificate"
 
+	"time"
+
 	alifc3 "github.com/alibabacloud-go/fc-20230330/v4/client"
 	alifc2 "github.com/alibabacloud-go/fc-open-20210406/v2/client"
-	"time"
 )
 
 type Deploy struct {
@@ -59,7 +61,7 @@ func (d *Deploy) deployToFC3(FC3 *alifc3.Client, domain string, certificate *cer
 	updateCustomDomainReq := &alifc3.UpdateCustomDomainRequest{
 		Body: &alifc3.UpdateCustomDomainInput{
 			CertConfig: &alifc3.CertConfig{
-				CertName:    tea.String(fmt.Sprintf("elego-%d", time.Now().UnixMilli())),
+				CertName:    tea.String(fmt.Sprintf("tlsctl-%d", time.Now().UnixMilli())),
 				Certificate: tea.String(string(certificate.Certificate)),
 				PrivateKey:  tea.String(string(certificate.PrivateKey)),
 			},
@@ -87,7 +89,7 @@ func (d *Deploy) deployToFC2(FC2 *alifc2.Client, domain string, certificate *cer
 	// REF: https://help.aliyun.com/zh/functioncompute/fc-2-0/developer-reference/api-fc-open-2021-04-06-updatecustomdomain
 	updateCustomDomainReq := &alifc2.UpdateCustomDomainRequest{
 		CertConfig: &alifc2.CertConfig{
-			CertName:    tea.String(fmt.Sprintf("elego-%d", time.Now().UnixMilli())),
+			CertName:    tea.String(fmt.Sprintf("tlsctl-%d", time.Now().UnixMilli())),
 			Certificate: tea.String(string(certificate.Certificate)),
 			PrivateKey:  tea.String(string(certificate.PrivateKey)),
 		},

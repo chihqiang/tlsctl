@@ -10,7 +10,7 @@ set -euxo pipefail
 #   支持通过环境变量自定义版本号、镜像源和安装目录。
 #
 # 环境变量：
-#   VERSION     安装版本，默认 v0.0.1
+#   VERSION     安装版本，默认 v0.0.2
 #   MIRROR      下载源，可选 github（默认）或 cnb
 #   INSTALL_DIR 安装路径，默认 /usr/local/bin
 #
@@ -28,7 +28,7 @@ set -euxo pipefail
 
 # ========== CONFIG ==========
 BIN_NAME="tlsctl"
-VERSION="${VERSION:-"v0.0.1"}"
+VERSION="${VERSION:-"v0.0.2"}"
 INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
 MIRROR="${MIRROR:-github}"
 
