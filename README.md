@@ -23,6 +23,20 @@ git clone https://cnb.cool/zhiqiangwang/tlsctl.git
 cd tlsctl && make build
 ```
 
+## ⚡ 一键安装（推荐，省时省力）
+
+### ✅ 默认使用 GitHub 源
+
+```
+curl -sSL https://raw.githubusercontent.com/chihqiang/tlsctl/main/install.sh | bash
+```
+
+### 🚀 使用 CNB 镜像源（推荐国内用户）
+
+```
+curl -sSL https://cnb.cool/zhiqiangwang/tlsctl/-/git/raw/main/install.sh | MIRROR=cnb bash
+```
+
 ## 🚀 快速开始
 
 #### 申请证书(以webroot为例)
