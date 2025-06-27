@@ -1,0 +1,26 @@
+$:
+  tag_push:
+    - docker:
+        build: .ide/Dockerfile
+      stages:
+        # - name: changelog
+        #   image: cnbcool/changelog
+        #   exports:
+        #     latestChangeLog: LATEST_CHANGE_LOG
+        - name: create release
+          type: git:release
+          options:
+            title: ${CNB_BRANCH}
+            description: ${LATEST_CHANGE_LOG}
+        - name: go mod
+          script: go mod tidy
+        - name: go build
+          script: MAIN_GO=cmd/tlsctl/main.go ADD_FILES="LICENSE README.md" BIN_NAME="tlsctl" VERSION=${CNB_BRANCH} bash build.sh
+        - name: release upload attachments
+          image: cnbcool/attachments:latest
+          settings:
+            attachments:
+              - ./dist/*.sha256
+              - ./dist/*.md5
+              - ./dist/*.zip
+              - ./dist/*.tar.gz
