@@ -39,7 +39,22 @@ git remote add togit "$TO_GIT_URL" 2>/dev/null || git remote set-url togit "$TO_
 
 # ==== Push main branch ==== #
 echo "🚀 Pushing main branch..."
-git push -u togit HEAD:main -f
+
+if git push -u togit HEAD:main; then
+  echo "✅ main ranch push successful!"
+else
+  echo "⚠️ The first push failed, check if the remote warehouse is empty..."
+
+  # 检查远程是否为空仓库（无分支）
+  if ! git ls-remote --heads togit | grep -q .; then
+    echo "🧼 Remote is an empty warehouse, try to forcefully push the main branch..."
+    git push -u togit HEAD:main -f
+    echo "✅ main Branch push successful!"
+  else
+    echo "❌ Push failed, remote non empty warehouse, do not perform strong push, manually handle conflicts。"
+    exit 1
+  fi
+fi
 
 # ==== Push tag if specified ==== #
 if [[ -n "$TAG" ]]; then

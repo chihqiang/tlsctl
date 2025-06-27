@@ -48,12 +48,13 @@ case "$ARCH" in
 esac
 
 # ========== DOWNLOAD URL ==========
+version_filename=${VERSION}/${BIN_NAME}_${OS}_${ARCH}.tar.gz
 case "$MIRROR" in
     cnb)
-        DOWNLOAD_URL="https://cnb.cool/zhiqiangwang/tlsctl/-/releases/download/${VERSION}/${BIN_NAME}_${OS}_${ARCH}.tar.gz"
+        DOWNLOAD_URL="https://cnb.cool/zhiqiangwang/tlsctl/-/releases/download/${version_filename}"
         ;;
     github)
-        DOWNLOAD_URL="https://github.com/chihqiang/tlsctl/releases/download/${VERSION}/${BIN_NAME}_${OS}_${ARCH}.tar.gz"
+        DOWNLOAD_URL="https://github.com/chihqiang/tlsctl/releases/download/${version_filename}"
         ;;
     *)
         echo "❌ Unknown MIRROR: '$MIRROR'. Use 'github' or 'cnb'."

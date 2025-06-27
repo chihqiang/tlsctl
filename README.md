@@ -2,6 +2,8 @@
 
 一个专为开发者与运维设计的命令行工具，支持 SSL/TLS 证书的申请、续签与部署，助你轻松管理 HTTPS 全流程。
 
+[![gobuild-upload](https://github.com/chihqiang/tlsctl/actions/workflows/gobuild.yml/badge.svg)](https://github.com/chihqiang/tlsctl/actions/workflows/gobuild.yml)![badge](https://cnb.cool/zhiqiangwang/tlsctl/-/badge/git/latest/ci/status/tag_push)
+
 ## ✨ 功能特点
 
 🌍 **支持多家 ACME CA**：兼容 Let's Encrypt、ZeroSSL、Google Trust Services 等主流 ACME 证书颁发机构
