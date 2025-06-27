@@ -1,0 +1,8 @@
+tlsctl.exe
+.tlsctl
+.gitcookies
+.idea
+.vscode/
+dist/
+builds/
+docs/

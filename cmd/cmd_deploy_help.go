@@ -1,0 +1,33 @@
+package cmd
+
+import (
+	"wangzhiqiang/tlsctl/deploy"
+	"wangzhiqiang/tlsctl/pkg/stdout"
+	"wangzhiqiang/tlsctl/pkg/structs"
+	"context"
+	"fmt"
+	"github.com/urfave/cli/v3"
+)
+
+func deployHelpCommand() *cli.Command {
+	return &cli.Command{
+		UseShortOptionHandling: true,
+		Name:                   "help:deploy",
+		Usage:                  `Display fields and environment configs required by each deploy type`,
+		Flags:                  []cli.Flag{},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			maps := structs.TagsMaps[deploy.IDeploy](deploy.All())
+			tp := stdout.NewTablePrinter()
+			for _, key := range maps.Keys {
+				tp.SetTitle(fmt.Sprintf("`%s` deploy Environment variables and other tags", key))
+				tp.Add([]string{"Field Name", "Type", "Environment", "JSON", "Yaml"})
+				for _, tag := range maps.Maps[key] {
+					tp.Add([]string{tag.Field, tag.Type, tag.Env, tag.Json, tag.Yaml})
+				}
+				tp.Print()
+				tp.Reset()
+			}
+			return nil
+		},
+	}
+}
