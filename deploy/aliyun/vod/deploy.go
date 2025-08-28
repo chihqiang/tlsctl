@@ -46,6 +46,6 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'vod.SetVodDomainSSLCertificate': %w", err)
 	}
-	log.Info("已设置域名证书  %+v", setVodDomainSSLCertificateResp)
+	log.Info("Domain name certificate has been set up  %+v", setVodDomainSSLCertificateResp)
 	return nil
 }

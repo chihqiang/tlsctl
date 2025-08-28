@@ -49,6 +49,6 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 	if err != nil {
 		return errors.Wrap(err, "failed to execute sdk request 'live.SetLiveDomainCertificate'")
 	}
-	log.Info("已设置域名证书 %+v", setLiveDomainSSLCertificateResp)
+	log.Info("Domain name certificate has been set up %+v", setLiveDomainSSLCertificateResp)
 	return nil
 }

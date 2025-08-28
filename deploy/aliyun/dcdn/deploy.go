@@ -49,6 +49,6 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 	if err != nil {
 		return errors.Wrap(err, "failed to execute sdk request 'dcdn.SetDcdnDomainSSLCertificate'")
 	}
-	log.Info("已设置 CDN 域名证书 %+v", setDcdnDomainSSLCertificateResp)
+	log.Info("CDN domain name certificate has been set up %+v", setDcdnDomainSSLCertificateResp)
 	return nil
 }

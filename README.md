@@ -1,55 +1,61 @@
-### 🔐 tlsctl
+# 🔐 tlsctl
 
-一个专为开发者与运维设计的命令行工具，支持 SSL/TLS 证书的申请、续签与部署，助你轻松管理 HTTPS 全流程。
+A command-line tool designed for developers and operators. It supports the application, renewal, and deployment of SSL/TLS certificates, helping you easily manage the entire HTTPS process.
 
-## ✨ 功能特点
+## ✨ Features
 
-🌍 **支持多家 ACME CA**：兼容 Let's Encrypt、ZeroSSL、Google Trust Services 等主流 ACME 证书颁发机构
+🌍 **Supports multiple ACME CAs**: Compatible with mainstream ACME certificate authorities such as Let's Encrypt, ZeroSSL, and Google Trust Services
 
-🔒 **自动申请 DV 证书**：支持 DNS-01 与 HTTP-01 两种验证方式
+🔒 **Automatically apply for DV certificates**: Supports both DNS-01 and HTTP-01 verification methods
 
-⏱️ **智能续签机制**：自动检测证书有效期并续签，保障服务持续可用
+⏱️**Smart Renewal Mechanism**: Automatically detects certificate validity and renews it to ensure continuous service availability
 
-📁 **灵活的证书存储**：可将证书保存到本地或指定的自定义目录
+📁 **Flexible certificate storage**: Certificates can be saved locally or in a specified custom directory
 
-☁️ **支持多种 DNS 服务商**：兼容阿里云、西部数码、京东云、百度云、腾讯云、华为云、AWS、GoDaddy、Cloudflare 等主流 DNS 平台
+☁️ **Support multiple DNS service providers**: Compatible with mainstream DNS platforms such as Alibaba Cloud, Western Digital, JD Cloud, Baidu Cloud, Tencent Cloud, Huawei Cloud, AWS, GoDaddy, Cloudflare, etc.
 
-🚀 **多种部署方式支持**：支持本地部署、SSH 部署、腾讯云、阿里云等自动上传部署方式
+🚀 **Multiple deployment methods supported**: Supports local deployment, SSH deployment, Tencent Cloud, Alibaba Cloud and other automatic upload deployment methods
 
-### 🛠️ 源码编译安装（适合折腾的你）
+## 🚀 One-click installation
 
+```bash
+curl -sSL https://cnb.cool/zhiqiangwang/tlsctl/-/git/raw/main/install.sh | bash
 ```
+
+## 🛠️ Source code reading & local building (for advanced users)
+
+```bash
 git clone https://github.com/chihqiang/tlsctl.git
 cd tlsctl && make build
 ```
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-#### 申请证书(以webroot为例)
+### Apply for a certificate (taking webroot as an example)
 
-~~~
+```bash
 tlsctl create --domain="test.example.com" --http.webroot="/data/wwwroot/test.example.com"
-~~~
+```
 
-#### 通过本地部署到nginx目录
+### By locally deploying to the nginx directory
 
-~~~
+```bash
 tlsctl deploy --domain="test.example.com" --deploy="local"
-~~~
+```
 
-> 默认保存路径为：`/etc/nginx/ssl/`
+> The default save path is：`/etc/nginx/ssl/`
 
-## ⏱️ 定时任务
+## ⏱️ Scheduled tasks
 
-#### 执行证书续签任务
+### Perform certificate renewal tasks
 
-~~~
+```bash
 tlsctl scheduled:run
-~~~
+```
 
-#### 添加为 systemd 启动服务（推荐方式）
+### Add as systemd startup service (recommended method)
 
-~~~
+```bash
 cat > /etc/systemd/system/tlsctl-scheduled.service << EOF
 [Unit]
 Description=Start tlsctl Scheduled Task
@@ -64,67 +70,67 @@ User=root
 [Install]
 WantedBy=multi-user.target
 EOF
-~~~
+```
 
-#### 常用 systemctl 命令：
+#### Common systemctl commands
 
-~~~
-# 重新加载所有 systemd 服务配置文件（全局作用）
+```bash
+# Reload all systemd service configuration files (globally)
 systemctl daemon-reload
-# 启动服务
+# Start the service
 systemctl start tlsctl-scheduled.service
-# 停止服务
+# Stop the service
 systemctl stop tlsctl-scheduled.service
-# 重启服务
+# Restart the service
 systemctl restart tlsctl-scheduled.service
-# 重载配置（服务支持 reload 才生效）
+# Reload the configuration (this takes effect only if the service supports reloading)
 systemctl reload tlsctl-scheduled.service
-# 设置为开机自启
+# Set it to start automatically at boot
 systemctl enable tlsctl-scheduled.service
-# 禁用开机启动
+# Disable it from starting at boot
 systemctl disable tlsctl-scheduled.service
-# 查询是否已设置开机启动
+# Check if it is set to start at boot
 systemctl is-enabled tlsctl-scheduled.service
-# 查看当前状态（运行中 / 停止 / 异常）
+# Check the current status (running/stopped/abnormal)
 systemctl status tlsctl-scheduled.service
-# 查看全部日志
+# View all logs
 journalctl -u tlsctl-scheduled.service
-# 实时跟踪日志输出
+# Track log output in real time
 journalctl -fu tlsctl-scheduled.service
-# 查看最近 10 分钟内的日志
+# View logs from the last 10 minutes
 journalctl -u tlsctl-scheduled --since "10 minutes ago"
-# 修改了 .service 文件后必须执行
+# Required after modifying the .service file
 systemctl daemon-reload
-# 重置“失败”状态（如服务启动失败后恢复）
+# Reset a "failed" status (e.g., recover from a service startup failure)
 systemctl reset-failed tlsctl-scheduled.service
-~~~
+```
 
-## ⚙️ 本地配置 `.env`
+## ⚙️ Local configuration `.env`
 
-你可以通过 `.env` 文件配置自动部署后动作，例如自动重载 nginx：
+You can configure automatic post-deployment actions via `.env` files, such as automatically reloading nginx:
 
-~~~
+```bash
 cat > ~/.tlsctl/.env << EOF
 LOCAL_POST_COMMAND="nginx -s reload"
 EOF
-~~~
+```
 
-## 📦 Nginx 配置示例
+## 📦 Nginx Configuration Example
 
-#### 申请证书时添加 Webroot 路径：
+### Add the Webroot path when applying for a certificate:
 
-~~~
+```bash
 tlsctl create --domain="test.example.com" --http.webroot="/var/www/html"
 
 //Add in nginx configuration
 location  /.well-known/ {
   alias /var/www/html/.well-known/;
 }
-~~~
-
-#### 添加到 nginx 配置中：
-
 ```
+
+### Add the certificate to the nginx configuration
+
+```bash
 listen 443 ssl;
 ssl_certificate /etc/nginx/ssl/test.example.com.pem;
 ssl_certificate_key /etc/nginx/ssl/test.example.com.key;
@@ -135,9 +141,9 @@ ssl_session_cache shared:SSL:10m;
 ssl_session_timeout 10m;
 ```
 
-## 🔐 使用 EAB（External Account Binding）
+## 🔐 Using EAB (External Account Binding)
 
-当使用 ZeroSSL、Google CA 等服务商时，你可能需要配置 `kid` 和 `hmacEncoded`：
+When using ZeroSSL, Google CA, etc., you may need to configure `kid` and `hmacEncoded`:
 
-- ZeroSSL 生成方式：https://zerossl.com/documentation/acme/generate-eab-credentials/
-- Google Public CA 教程：https://cloud.google.com/certificate-manager/docs/public-ca-tutorial?hl=zh-cn
+- ZeroSSL generation method：<https://zerossl.com/documentation/acme/generate-eab-credentials/>
+- Google Public CA Tutorial：<https://cloud.google.com/certificate-manager/docs/public-ca-tutorial?hl=zh-cn>
