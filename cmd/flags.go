@@ -3,7 +3,6 @@ package cmd
 import (
 	"os"
 	"path"
-	"runtime"
 	"time"
 
 	"github.com/go-acme/lego/v4/lego"
@@ -60,8 +59,8 @@ func CreateFlags() []cli.Flag {
 			Name:    flgEmail,
 			Aliases: []string{"m"},
 			Sources: cli.EnvVars(envEmail),
-			Usage:   "Email used for registration and recovery contact.",
-			Value:   "tlsctl@" + runtime.GOOS + ".com",
+			Usage:   "Email used for registration and recovery contact. If not provided, a system-generated email will be used.",
+			Value:   generatedEmail(),
 		},
 		&cli.StringFlag{
 			Name:    flgPath,

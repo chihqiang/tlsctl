@@ -32,16 +32,20 @@ var deployJSONFile = &fp.JSONFile[DomainDeploys]{
 		return a.Domain == b.Domain
 	},
 	Merge: func(existing *DomainDeploys, newItem DomainDeploys) {
-		m := make(map[string]bool)
+		// 保持原有顺序，仅去重并追加新项，避免 map 遍历导致顺序随机。
+		seen := make(map[string]bool, len(existing.Deploys))
+		res := make([]string, 0, len(existing.Deploys)+len(newItem.Deploys))
 		for _, v := range existing.Deploys {
-			m[v] = true
+			if !seen[v] {
+				res = append(res, v)
+				seen[v] = true
+			}
 		}
 		for _, v := range newItem.Deploys {
-			m[v] = true
-		}
-		res := make([]string, 0, len(m))
-		for k := range m {
-			res = append(res, k)
+			if !seen[v] {
+				res = append(res, v)
+				seen[v] = true
+			}
 		}
 		existing.Deploys = res
 	},

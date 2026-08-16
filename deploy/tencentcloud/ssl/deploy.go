@@ -3,6 +3,7 @@ package ssl
 import (
 	"context"
 	"fmt"
+
 	"github.com/caarlos0/env/v11"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
@@ -37,6 +38,9 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 	uploadCertificateResp, err := client.UploadCertificate(uploadCertificateReq)
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'ssl.UploadCertificate': %w", err)
+	}
+	if uploadCertificateResp == nil || uploadCertificateResp.Response == nil || uploadCertificateResp.Response.CertificateId == nil {
+		return fmt.Errorf("empty response from 'ssl.UploadCertificate'")
 	}
 	d.certId = *uploadCertificateResp.Response.CertificateId
 	return nil

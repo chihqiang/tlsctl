@@ -71,6 +71,9 @@ func (j *JSONFile[T]) Remove(fileName string, remove func(t T) bool) error {
 		}
 		newItems = append(newItems, datum)
 	}
-	jsonBytes, _ := json.MarshalIndent(newItems, "", "  ")
+	jsonBytes, err := json.MarshalIndent(newItems, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to encode JSON: %w", err)
+	}
 	return os.WriteFile(fileName, jsonBytes, 0600)
 }

@@ -5,7 +5,10 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"fmt"
+	"os"
 	"path"
+	"runtime"
+	"strings"
 
 	"github.com/chihqiang/logx"
 	"github.com/chihqiang/tlsctl/account"
@@ -21,9 +24,27 @@ import (
 func getEmail(ctx *cli.Command) (string, error) {
 	email := ctx.String(flgEmail)
 	if email == "" {
-		return "", fmt.Errorf("you have to pass an account (email address) to the program using --%s or -m", flgEmail)
+		email = generatedEmail()
 	}
 	return email, nil
+}
+
+// generatedEmail 生成一个确定性的默认邮箱：tlsctl-<hostname>@<os>.com。
+// 同一台机器每次生成一致（ACME 账号可稳定复用），不同机器各不相同（避免撞车）。
+func generatedEmail() string {
+	host, err := os.Hostname()
+	if err != nil || host == "" {
+		host = "localhost"
+	}
+	var b strings.Builder
+	for _, r := range strings.ToLower(host) {
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-' || r == '.' {
+			b.WriteRune(r)
+		} else {
+			b.WriteRune('-')
+		}
+	}
+	return "tlsctl-" + b.String() + "@" + runtime.GOOS + ".com"
 }
 
 func getDomain(ctx *cli.Command) (string, error) {
