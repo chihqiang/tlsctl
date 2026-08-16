@@ -10,7 +10,7 @@ build:
 	@echo "✅ Build complete: $(OUTPUT)"
 
 
-build_liunx_amd64:
+build_linux_amd64:
 	@echo "🔧 Building $(OUTPUT) with version $(version)..."
 	GOOS=linux GOARCH=amd64 GO111MODULE=on CGO_ENABLED=0 go build -ldflags "-s -w -X main.version=$(version)" -o $(OUTPUT) $(MAIN)
 	@echo "✅ Build complete: $(OUTPUT)"
