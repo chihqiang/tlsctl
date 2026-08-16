@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/caarlos0/env/v11"
+	"github.com/chihqiang/logx"
 	"github.com/chihqiang/tlsctl/deploy/tencentcloud/ssl"
-	"github.com/chihqiang/tlsctl/pkg/log"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	tcvod "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/vod/v20180717"
@@ -45,7 +45,7 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 		setVodDomainCertificateReq.SubAppId = common.Uint64Ptr(uint64(d.Config.SubAppId))
 	}
 	setVodDomainCertificateResp, err := client.SetVodDomainCertificate(setVodDomainCertificateReq)
-	log.Info("sdk request 'vod.SetVodDomainCertificate' request: %#v response:%#v", setVodDomainCertificateReq, setVodDomainCertificateResp)
+	logx.Info("sdk request 'vod.SetVodDomainCertificate' request: %#v response:%#v", setVodDomainCertificateReq, setVodDomainCertificateResp)
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'vod.SetVodDomainCertificate': %w", err)
 	}

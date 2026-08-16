@@ -2,15 +2,15 @@ package ecdn
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/caarlos0/env/v11"
+	"github.com/chihqiang/logx"
 	"github.com/chihqiang/tlsctl/deploy/tencentcloud/ssl"
-	"github.com/chihqiang/tlsctl/pkg/log"
 	"github.com/go-acme/lego/v4/certificate"
-	"github.com/pkg/errors"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	tcssl "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl/v20191205"
 )
@@ -51,9 +51,9 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 		instanceIds = append(instanceIds, d.Config.Domain)
 	}
 	if len(instanceIds) == 0 {
-		log.Info("no ecdn instances to deploy")
+		logx.Info("no ecdn instances to deploy")
 	} else {
-		log.Info("found ecdn instances to deploy")
+		logx.Info("found ecdn instances to deploy")
 
 		// 证书部署到 CDN 实例
 		// REF: https://cloud.tencent.com/document/product/400/91667
@@ -63,7 +63,7 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 		deployCertificateInstanceReq.Status = common.Int64Ptr(1)
 		deployCertificateInstanceReq.InstanceIdList = common.StringPtrs(instanceIds)
 		deployCertificateInstanceResp, err := clients.SSL.DeployCertificateInstance(deployCertificateInstanceReq)
-		log.Info("sdk request 'ssl.DeployCertificateInstance' request: %#v response: %#v", deployCertificateInstanceReq, deployCertificateInstanceResp)
+		logx.Info("sdk request 'ssl.DeployCertificateInstance' request: %#v response: %#v", deployCertificateInstanceReq, deployCertificateInstanceResp)
 		if err != nil {
 			return fmt.Errorf("failed to execute sdk request 'ssl.DeployCertificateInstance': %w", err)
 		}
@@ -80,7 +80,7 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 			describeHostDeployRecordDetailReq := tcssl.NewDescribeHostDeployRecordDetailRequest()
 			describeHostDeployRecordDetailReq.DeployRecordId = common.StringPtr(fmt.Sprintf("%d", *deployCertificateInstanceResp.Response.DeployRecordId))
 			describeHostDeployRecordDetailResp, err := clients.SSL.DescribeHostDeployRecordDetail(describeHostDeployRecordDetailReq)
-			log.Info("sdk request 'ssl.DescribeHostDeployRecordDetail' request: %#v response:%#v", describeHostDeployRecordDetailReq, describeHostDeployRecordDetailResp)
+			logx.Info("sdk request 'ssl.DescribeHostDeployRecordDetail' request: %#v response:%#v", describeHostDeployRecordDetailReq, describeHostDeployRecordDetailResp)
 			if err != nil {
 				return fmt.Errorf("failed to execute sdk request 'ssl.DescribeHostDeployRecordDetail': %w", err)
 			}
@@ -105,7 +105,7 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 					break
 				}
 			}
-			log.Info("waiting for deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount)
+			logx.Info("waiting for deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount)
 			time.Sleep(time.Second * 5)
 		}
 	}

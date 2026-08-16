@@ -15,7 +15,10 @@ func listCommand() *cli.Command {
 		Usage:                  "List all certificates installed on this machine",
 		Flags:                  []cli.Flag{},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			cStorage := setupResourceCache(cmd)
+			cStorage, err := setupResourceCache(cmd)
+			if err != nil {
+				return err
+			}
 			resources, err := cStorage.GetAllDomainResources()
 			if err != nil {
 				return err

@@ -14,13 +14,13 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
 	github.com/baidubce/bce-sdk-go v0.9.260
 	github.com/caarlos0/env/v11 v11.3.1
+	github.com/chihqiang/logx v0.1.0
 	github.com/go-acme/lego/v4 v4.32.0
 	github.com/google/uuid v1.6.0
 	github.com/jdcloud-api/jdcloud-sdk-go v1.64.0
 	github.com/joho/godotenv v1.5.1
 	github.com/libdns/dynv6 v1.0.0
 	github.com/libdns/libdns v0.1.0
-	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.9
 	github.com/povsister/scp v0.0.0-20250504051308-e467f71ea63c
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cdn v1.0.1193
@@ -35,7 +35,6 @@ require (
 	golang.org/x/crypto v0.48.0
 	golang.org/x/exp v0.0.0-20241210194714-1829a127f884
 	golang.org/x/net v0.50.0
-	golang.org/x/sync v0.19.0
 	software.sslmate.com/src/go-pkcs12 v0.7.0
 )
 
@@ -107,7 +106,7 @@ require (
 	github.com/dimchansky/utfbom v1.1.1 // indirect
 	github.com/dnsimple/dnsimple-go/v4 v4.0.0 // indirect
 	github.com/exoscale/egoscale/v3 v3.1.33 // indirect
-	github.com/fatih/color v1.16.0 // indirect
+	github.com/fatih/color v1.18.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
@@ -187,6 +186,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/peterhellberg/link v1.2.0 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/pquerna/otp v1.5.0 // indirect
 	github.com/rainycape/memcache v0.0.0-20150622160815-1031fa0ce2f2 // indirect
@@ -234,6 +234,7 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/mod v0.32.0 // indirect
 	golang.org/x/oauth2 v0.35.0 // indirect
+	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.41.0 // indirect
 	golang.org/x/text v0.34.0 // indirect
 	golang.org/x/time v0.14.0 // indirect

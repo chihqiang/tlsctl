@@ -6,8 +6,8 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/chihqiang/logx"
 	"github.com/chihqiang/tlsctl/cmd"
-	"github.com/chihqiang/tlsctl/pkg/log"
 	"github.com/urfave/cli/v3"
 )
 
@@ -27,6 +27,7 @@ func main() {
 	app.Before = cmd.Before
 	app.Commands = cmd.CreateCommands()
 	if err := app.Run(context.Background(), os.Args); err != nil {
-		log.Error(err.Error())
+		logx.Error("tlsctl: %v", err)
+		os.Exit(1)
 	}
 }

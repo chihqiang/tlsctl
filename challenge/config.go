@@ -2,6 +2,7 @@ package challenge
 
 import (
 	"errors"
+	"time"
 
 	"github.com/chihqiang/tlsctl/challenge/dns"
 	"github.com/chihqiang/tlsctl/challenge/httpport"
@@ -21,7 +22,7 @@ type Config struct {
 	HTTPPort          string
 	TLSPort           string
 	TLS               bool
-	Delay             int
+	Delay             time.Duration
 }
 
 func SetConfigChallenge(client *lego.Client, cfg Config) error {

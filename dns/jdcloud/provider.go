@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/caarlos0/env/v11"
-	"github.com/go-acme/lego/v4/challenge"
 	"github.com/chihqiang/tlsctl/dns/jdcloud/lego"
+	"github.com/go-acme/lego/v4/challenge"
 )
 
 type Config struct {

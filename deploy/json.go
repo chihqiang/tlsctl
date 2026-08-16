@@ -2,31 +2,13 @@ package deploy
 
 import (
 	"context"
-	"fmt"
-	"os"
-	"path"
 	"slices"
 
 	"github.com/chihqiang/tlsctl/pkg/fp"
-	"github.com/chihqiang/tlsctl/resource"
 	"github.com/go-acme/lego/v4/certificate"
 )
 
-const (
-	deployLocalPath = "/etc/nginx/ssl/"
-)
-
 func RunWithJSONFile(filePath, name string, certificate *certificate.Resource) error {
-	sanitizedDomain, _ := resource.SanitizedDomain(certificate.Domain)
-	switch name {
-	case "local":
-		if os.Getenv("LOCAL_CERT_PATH") == "" && os.Getenv("LOCAL_KEY_PATH") == "" {
-			keyPath := path.Join(deployLocalPath, fmt.Sprintf("%s%s", sanitizedDomain, resource.PemExt))
-			_ = os.Setenv("LOCAL_CERT_PATH", keyPath)
-			cerPath := path.Join(deployLocalPath, fmt.Sprintf("%s%s", sanitizedDomain, resource.KeyExt))
-			_ = os.Setenv("LOCAL_KEY_PATH", cerPath)
-		}
-	}
 	envDeploy, err := Get(name)
 	if err != nil {
 		return err

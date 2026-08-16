@@ -7,8 +7,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/chihqiang/logx"
 	"github.com/chihqiang/tlsctl/deploy"
-	"github.com/chihqiang/tlsctl/pkg/log"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/urfave/cli/v3"
 )
@@ -28,7 +28,7 @@ func scheduledRunCommand() *cli.Command {
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			interval := cmd.Duration(flgInterval)
-			log.Info("Scheduled loop started, will check every %s", interval)
+			logx.Info("Scheduled loop started, will check every %s", interval)
 			ticker := time.NewTicker(interval)
 			defer ticker.Stop()
 			// 初次启动时先执行一次
@@ -41,7 +41,7 @@ func scheduledRunCommand() *cli.Command {
 				case <-ticker.C:
 					runScheduled(cmd)
 				case s := <-sig:
-					log.Info("Received signal: %v, exiting loop...", s)
+					logx.Info("Received signal: %v, exiting loop...", s)
 					return nil
 				}
 			}
@@ -52,10 +52,14 @@ func scheduledRunCommand() *cli.Command {
 func runScheduled(cmd *cli.Command) {
 	domainDeploys, err := deploy.JSONFileLoad(getDeployJson(cmd))
 	if err != nil {
-		log.Warn("No plan to execute %d", err)
+		logx.Warn("No plan to execute: %v", err)
 		return
 	}
-	storage := setupResourceCache(cmd)
+	storage, err := setupResourceCache(cmd)
+	if err != nil {
+		logx.Warn("Failed to setup certificate cache: %v", err)
+		return
+	}
 	for _, domainDeploy := range domainDeploys {
 		var (
 			renew    bool
@@ -64,35 +68,37 @@ func runScheduled(cmd *cli.Command) {
 		)
 		resource, err = storage.ReadResource(domain)
 		if err != nil {
-			log.Warn("Failed to read cert for %s: %v", domain, err)
+			logx.Warn("Failed to read cert for %s: %v", domain, err)
 			resource, err = buildLegoSSL(cmd, domain)
 			if err != nil {
-				log.Warn("Invalid certificate for %s: %v", domain, err)
+				logx.Warn("Failed to obtain certificate for %s: %v", domain, err)
+				continue
 			}
 			renew = true
 		} else {
 			cert, err := storage.ParseResourceFindCertificate(resource)
 			if err != nil {
-				log.Warn("Invalid certificate for %s: %v", domain, err)
+				logx.Warn("Invalid certificate for %s: %v", domain, err)
 				continue
 			}
 			daysLeft := int(time.Until(cert.NotAfter).Hours() / 24)
-			log.Info("%s will expire in %d days", domain, daysLeft)
+			logx.Info("%s will expire in %d days", domain, daysLeft)
 			if daysLeft < cmd.Int("day") {
 				renew = true
 				resource, err = buildLegoSSL(cmd, domain)
 				if err != nil {
-					log.Warn("Invalid certificate Day for %s: %v", domain, err)
+					logx.Warn("Failed to renew certificate for %s: %v", domain, err)
+					continue
 				}
 			}
 		}
 		if renew {
-			log.Warn("Renewing and deploying certificate for  %s", domain)
+			logx.Warn("Renewing and deploying certificate for %s", domain)
 			for _, deployName := range domainDeploy.Deploys {
 				if err := deploy.RunWithJSONFile(getDeployJson(cmd), deployName, resource); err != nil {
-					log.Warn("Deployment failed: domain=%s deploy=%s err=%v", domain, deployName, err)
+					logx.Warn("Deployment failed: domain=%s deploy=%s err=%v", domain, deployName, err)
 				} else {
-					log.Info("Deployment success: %s => %s", domain, deployName)
+					logx.Info("Deployment success: %s => %s", domain, deployName)
 				}
 			}
 		}

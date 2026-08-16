@@ -11,13 +11,13 @@ import (
 type Challenge struct {
 	HostPort string
 	TLS      bool
-	Delay    int
+	Delay    time.Duration
 }
 
 func (w *Challenge) Set(client *lego.Client) error {
 	if w.TLS {
 		provider := tlsalpn01.NewProviderServer("", "")
-		return client.Challenge.SetTLSALPN01Provider(provider, tlsalpn01.SetDelay(time.Duration(w.Delay)))
+		return client.Challenge.SetTLSALPN01Provider(provider, tlsalpn01.SetDelay(w.Delay))
 	}
 	host, port, err := net.SplitHostPort(w.HostPort)
 	if err != nil {

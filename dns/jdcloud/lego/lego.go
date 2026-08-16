@@ -1,7 +1,10 @@
 package lego
 
 import (
+	"errors"
 	"fmt"
+	"time"
+
 	"github.com/go-acme/lego/v4/challenge"
 	"github.com/go-acme/lego/v4/challenge/dns01"
 	"github.com/go-acme/lego/v4/platform/config/env"
@@ -9,8 +12,6 @@ import (
 	jdDnsApi "github.com/jdcloud-api/jdcloud-sdk-go/services/domainservice/apis"
 	jdDnsClient "github.com/jdcloud-api/jdcloud-sdk-go/services/domainservice/client"
 	jdDnsModel "github.com/jdcloud-api/jdcloud-sdk-go/services/domainservice/models"
-	"github.com/pkg/errors"
-	"time"
 )
 
 const (

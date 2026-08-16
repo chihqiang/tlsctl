@@ -2,12 +2,17 @@ package local
 
 import (
 	"context"
+	"fmt"
+	"path/filepath"
 
 	"github.com/caarlos0/env/v11"
-	"github.com/chihqiang/tlsctl/pkg/log"
+	"github.com/chihqiang/logx"
+	"github.com/chihqiang/tlsctl/resource"
 	"github.com/go-acme/lego/v4/certificate"
-	"github.com/pkg/errors"
 )
+
+// deployLocalPath 是本地部署未配置输出路径时的默认证书目录。
+const deployLocalPath = "/etc/nginx/ssl/"
 
 type Deploy struct {
 	Config *Config
@@ -22,30 +27,40 @@ func (p *Deploy) WithEnvConfig() error {
 	p.Config = &cfg
 	return nil
 }
+
 func (p *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) error {
+	// 未配置输出路径时，使用默认目录 /etc/nginx/ssl/
+	if p.Config.CertPath == "" && p.Config.KeyPath == "" {
+		sanitizedDomain, err := resource.SanitizedDomain(certificate.Domain)
+		if err != nil {
+			return fmt.Errorf("failed to sanitize domain: %w", err)
+		}
+		p.Config.CertPath = filepath.Join(deployLocalPath, sanitizedDomain+resource.PemExt)
+		p.Config.KeyPath = filepath.Join(deployLocalPath, sanitizedDomain+resource.KeyExt)
+	}
 	// 执行前置命令
 	if p.Config.PreCommand != "" {
 		stdout, stderr, err := ExecCommand(p.Config.PreCommand, "")
 		if err != nil {
-			return errors.Wrapf(err, "failed to execute pre-command, stdout: %s, stderr: %s", stdout, stderr)
+			return fmt.Errorf("failed to execute pre-command, stdout: %s, stderr: %s: %w", stdout, stderr, err)
 		}
-		log.Info("pre-command executed %s", stdout)
+		logx.Info("pre-command executed %s", stdout)
 	}
 	if err := CopyFile(p.Config.CertPath, certificate.Certificate); err != nil {
-		return errors.Wrap(err, "failed to save certificate file")
+		return fmt.Errorf("failed to save certificate file: %w", err)
 	}
-	log.Info("certificate file saved to %s", p.Config.CertPath)
+	logx.Info("certificate file saved to %s", p.Config.CertPath)
 	if err := CopyFile(p.Config.KeyPath, certificate.PrivateKey); err != nil {
-		return errors.Wrap(err, "failed to save private key file")
+		return fmt.Errorf("failed to save private key file: %w", err)
 	}
-	log.Info("private key file saved to %s", p.Config.KeyPath)
+	logx.Info("private key file saved to %s", p.Config.KeyPath)
 	// 执行后置命令
 	if p.Config.PostCommand != "" {
 		stdout, stderr, err := ExecCommand(p.Config.PostCommand, "")
 		if err != nil {
-			return errors.Wrapf(err, "failed to execute post-command, stdout: %s, stderr: %s", stdout, stderr)
+			return fmt.Errorf("failed to execute post-command, stdout: %s, stderr: %s: %w", stdout, stderr, err)
 		}
-		log.Info("post-command executed %s", stdout)
+		logx.Info("post-command executed %s", stdout)
 	}
 	return nil
 }

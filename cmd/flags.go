@@ -31,6 +31,8 @@ const (
 
 	flgDeploy = "deploy"
 
+	flgKeyType = "key-type"
+
 	flgInterval = "interval"
 )
 
@@ -80,6 +82,11 @@ func CreateFlags() []cli.Flag {
 		&cli.StringFlag{
 			Name:  flgDNS,
 			Usage: `Solve a DNS-01 challenge using the specified provider. Can be mixed with other types of challenges.`,
+		},
+		&cli.StringFlag{
+			Name:  flgKeyType,
+			Usage: "Type of the private key to generate. Supported: RSA2048, RSA3072, RSA4096, RSA8192, EC256, EC384.",
+			Value: "RSA2048",
 		},
 		&cli.StringFlag{
 			Name: flgHTTPWebroot,

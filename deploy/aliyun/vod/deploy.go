@@ -8,9 +8,8 @@ import (
 	"github.com/alibabacloud-go/tea/tea"
 	aliyunVod "github.com/alibabacloud-go/vod-20170321/v4/client"
 	"github.com/caarlos0/env/v11"
-	"github.com/chihqiang/tlsctl/pkg/log"
+	"github.com/chihqiang/logx"
 	"github.com/go-acme/lego/v4/certificate"
-	"github.com/pkg/errors"
 )
 
 type Deploy struct {
@@ -30,7 +29,7 @@ func (d *Deploy) WithEnvConfig() error {
 func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) error {
 	client, err := newClient(d.Config.AccessKeyId, d.Config.AccessKeySecret, d.Config.Region)
 	if err != nil {
-		return errors.Wrap(err, "failed to create sdk client")
+		return fmt.Errorf("failed to create sdk client: %w", err)
 	}
 	// 设置域名证书
 	// REF: https://help.aliyun.com/zh/vod/developer-reference/api-vod-2017-03-21-setvoddomainsslcertificate
@@ -46,6 +45,6 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'vod.SetVodDomainSSLCertificate': %w", err)
 	}
-	log.Info("Domain name certificate has been set up  %+v", setVodDomainSSLCertificateResp)
+	logx.Info("Domain name certificate has been set up  %+v", setVodDomainSSLCertificateResp)
 	return nil
 }

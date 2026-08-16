@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/caarlos0/env/v11"
+	"github.com/chihqiang/logx"
 	"github.com/chihqiang/tlsctl/deploy/tencentcloud/ssl"
-	"github.com/chihqiang/tlsctl/pkg/log"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	tcwaf "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/waf/v20180125"
@@ -38,7 +38,7 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 	describeDomainDetailsSaasReq.DomainId = common.StringPtr(d.Config.DomainId)
 	describeDomainDetailsSaasReq.InstanceId = common.StringPtr(d.Config.InstanceId)
 	describeDomainDetailsSaasResp, err := client.DescribeDomainDetailsSaas(describeDomainDetailsSaasReq)
-	log.Debug("sdk request 'waf.DescribeDomainDetailsSaas request: %#v response: %#v", describeDomainDetailsSaasReq, describeDomainDetailsSaasResp)
+	logx.Debug("sdk request 'waf.DescribeDomainDetailsSaas request: %#v response: %#v", describeDomainDetailsSaasReq, describeDomainDetailsSaasResp)
 	if err != nil {
 		return err
 	}
@@ -54,6 +54,6 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 	if err != nil {
 		return err
 	}
-	log.Debug("sdk request 'waf.ModifySpartaProtection' request: %#v response: %#v", modifySpartaProtectionReq, modifySpartaProtectionResp)
+	logx.Debug("sdk request 'waf.ModifySpartaProtection' request: %#v response: %#v", modifySpartaProtectionReq, modifySpartaProtectionResp)
 	return nil
 }

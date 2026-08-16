@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/caarlos0/env/v11"
+	"github.com/chihqiang/logx"
 	ssl "github.com/chihqiang/tlsctl/deploy/tencentcloud/ssl"
-	"github.com/chihqiang/tlsctl/pkg/log"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	tcscf "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/scf/v20180416"
@@ -49,7 +49,7 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 	}
 	updateCustomDomainReq.Protocol = getCustomDomainResp.Response.Protocol
 	updateCustomDomainResp, err := client.UpdateCustomDomain(updateCustomDomainReq)
-	log.Info("sdk request 'scf.UpdateCustomDomain' request: %#v  response:%#v", updateCustomDomainReq, updateCustomDomainResp)
+	logx.Info("sdk request 'scf.UpdateCustomDomain' request: %#v  response:%#v", updateCustomDomainReq, updateCustomDomainResp)
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'scf.UpdateCustomDomain': %w", err)
 	}

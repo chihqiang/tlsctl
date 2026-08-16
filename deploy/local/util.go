@@ -3,7 +3,6 @@ package local
 import (
 	"bytes"
 	"fmt"
-	"github.com/pkg/errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -49,7 +48,7 @@ func ExecCommand(command, shellEnv string) (string, string, error) {
 	cmd.Stderr = stderrBuf
 	err := cmd.Run()
 	if err != nil {
-		return stdoutBuf.String(), stderrBuf.String(), errors.Wrap(err, "failed to execute command")
+		return stdoutBuf.String(), stderrBuf.String(), fmt.Errorf("failed to execute command: %w", err)
 	}
 
 	return stdoutBuf.String(), stderrBuf.String(), nil

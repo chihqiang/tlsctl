@@ -81,7 +81,10 @@ func (s *Cache) SaveResource(resource *certificate.Resource) error {
 }
 func (s *Cache) GetAllDomainResources() ([]*certificate.Resource, error) {
 	var resources []*certificate.Resource
-	jsons, _ := filepath.Glob(filepath.Join(s.rootPath, "/*/*"+ResourceExt))
+	jsons, err := filepath.Glob(filepath.Join(s.rootPath, "/*/*"+ResourceExt))
+	if err != nil {
+		return nil, err
+	}
 	for _, jsonFile := range jsons {
 		var tmpResource *certificate.Resource
 		jsonBytes, err := os.ReadFile(jsonFile)

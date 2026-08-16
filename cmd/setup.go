@@ -4,96 +4,112 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"fmt"
 	"path"
 
+	"github.com/chihqiang/logx"
 	"github.com/chihqiang/tlsctl/account"
 	"github.com/chihqiang/tlsctl/challenge"
-	"github.com/chihqiang/tlsctl/pkg/log"
 	"github.com/chihqiang/tlsctl/register"
 	"github.com/chihqiang/tlsctl/resource"
 
-	"github.com/go-acme/lego/v4/certcrypto"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/go-acme/lego/v4/lego"
 	"github.com/urfave/cli/v3"
 )
 
-func getEmail(ctx *cli.Command) string {
+func getEmail(ctx *cli.Command) (string, error) {
 	email := ctx.String(flgEmail)
 	if email == "" {
-		log.Error("You have to pass an account (email address) to the program using --%s or -m", flgEmail)
+		return "", fmt.Errorf("you have to pass an account (email address) to the program using --%s or -m", flgEmail)
 	}
-	return email
+	return email, nil
 }
 
-func getDomain(ctx *cli.Command) string {
+func getDomain(ctx *cli.Command) (string, error) {
 	domain := ctx.String(flgDomain)
 	if domain == "" {
-		log.Error("You have to pass an Domain to the program using --%s or -d", flgDomain)
+		return "", fmt.Errorf("you have to pass a domain to the program using --%s or -d", flgDomain)
 	}
-	return domain
+	return domain, nil
 }
 
 func getDeployJson(ctx *cli.Command) string {
 	return path.Join(ctx.String(flgPath), "deploy.json")
 }
 
-func setupAccountCache(ctx *cli.Command) *account.Cache {
-	cache, err := account.NewCache(ctx.String(flgPath), getEmail(ctx), ctx.String(flgServer))
+func setupAccountCache(ctx *cli.Command) (*account.Cache, error) {
+	email, err := getEmail(ctx)
 	if err != nil {
-		log.Error("creating accounts cache: %v", err)
+		return nil, err
 	}
-	return cache
+	cache, err := account.NewCache(ctx.String(flgPath), email, ctx.String(flgServer))
+	if err != nil {
+		return nil, fmt.Errorf("creating accounts cache: %w", err)
+	}
+	return cache, nil
 }
 
-func setupResourceCache(ctx *cli.Command) *resource.Cache {
+func setupResourceCache(ctx *cli.Command) (*resource.Cache, error) {
 	cCache, err := resource.NewCache(ctx.String(flgPath), "RC2")
 	if err != nil {
-		log.Error("creating certificates cache: %v", err)
+		return nil, fmt.Errorf("creating certificates cache: %w", err)
 	}
-	return cCache
+	return cCache, nil
 }
 
-func setupClient(cmd *cli.Command, ac *account.Cache) *lego.Client {
+func setupClient(cmd *cli.Command, ac *account.Cache) (*lego.Client, error) {
 	loadAccount, err := ac.LoadAccount()
 	if err != nil {
-		log.Warn("account.cache.LoadAccount: %v", err)
+		logx.Warn("account.cache.LoadAccount: %v", err)
 	}
 	if loadAccount == nil {
 		loadAccount = &account.Account{Email: ac.GetEmail()}
 		privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 		if err != nil {
-			log.Error("ecdsa.GenerateKey err:", err)
+			return nil, fmt.Errorf("ecdsa.GenerateKey: %w", err)
 		}
 		loadAccount.Key = privateKey
 	}
+	keyType, err := account.GetKeyType(cmd.String(flgKeyType))
+	if err != nil {
+		return nil, fmt.Errorf("invalid key type: %w", err)
+	}
 	config := lego.NewConfig(loadAccount)
 	config.CADirURL = ac.GetServer()
-	config.Certificate.KeyType = certcrypto.RSA2048
+	config.Certificate.KeyType = keyType
 	config.UserAgent = "github.com/chihqiang/tlsctl@main"
 	client, err := lego.NewClient(config)
 	if err != nil {
 		ac.Remove()
-		log.Error("lego.NewClient err:%v", err)
+		return nil, fmt.Errorf("lego.NewClient: %w", err)
 	}
 	if loadAccount.Registration == nil {
 		loadAccount.Registration, err = register.GetRegister(cmd.String(flgKID), cmd.String(flgHMAC)).Register(client)
 		if err != nil {
 			ac.Remove()
-			log.Error("Register err:%v", err)
+			return nil, fmt.Errorf("Register: %w", err)
 		}
 	}
-	err = ac.Save(loadAccount)
-	if err != nil {
-		log.Warn("Account.Save %v", err)
+	if err := ac.Save(loadAccount); err != nil {
+		logx.Warn("Account.Save %v", err)
 	}
-	return client
+	return client, nil
 }
 
 func buildLegoSSL(cmd *cli.Command, domain string) (*certificate.Resource, error) {
-	rCache := setupResourceCache(cmd)
-	cCache := setupAccountCache(cmd)
-	client := setupClient(cmd, cCache)
+	rCache, err := setupResourceCache(cmd)
+	if err != nil {
+		return nil, err
+	}
+	cCache, err := setupAccountCache(cmd)
+	if err != nil {
+		return nil, err
+	}
+	client, err := setupClient(cmd, cCache)
+	if err != nil {
+		return nil, err
+	}
 	if err := challenge.SetConfigChallenge(client, challenge.Config{
 		DNS:               cmd.String(flgDNS),
 		Webroot:           cmd.String(flgHTTPWebroot),
@@ -102,22 +118,25 @@ func buildLegoSSL(cmd *cli.Command, domain string) (*certificate.Resource, error
 		HTTPPort:          cmd.String(flgHTTPPort),
 		TLSPort:           cmd.String(flgTLSPort),
 		TLS:               cmd.Bool(flgTLS),
-		Delay:             cmd.Int(flgTLSDelay),
+		Delay:             cmd.Duration(flgTLSDelay),
 	}); err != nil {
-		log.Error("SetConfigChallenge %v", err)
+		return nil, fmt.Errorf("SetConfigChallenge: %w", err)
 	}
 	res, err := client.Certificate.Obtain(certificate.ObtainRequest{
 		Domains: []string{domain},
 		Bundle:  true,
 	})
 	if err != nil {
-		log.Error("Obtain err: %v", err)
+		return nil, fmt.Errorf("Obtain: %w", err)
 	}
 	if err := rCache.SaveResource(res); err != nil {
-		log.Warn("SaveResource err: %v", err)
+		logx.Warn("SaveResource err: %v", err)
 	}
-	sanitizedDomain, _ := resource.SanitizedDomain(domain)
-	log.Debug("Certificate for %s has been saved successfully at %s",
+	sanitizedDomain, err := resource.SanitizedDomain(domain)
+	if err != nil {
+		return nil, fmt.Errorf("sanitize domain: %w", err)
+	}
+	logx.Debug("Certificate for %s has been saved successfully at %s",
 		domain,
 		rCache.GetSanitizedDomainSavePath(sanitizedDomain),
 	)

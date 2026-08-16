@@ -2,15 +2,15 @@ package cdn
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/caarlos0/env/v11"
+	"github.com/chihqiang/logx"
 	"github.com/chihqiang/tlsctl/deploy/tencentcloud/ssl"
-	"github.com/chihqiang/tlsctl/pkg/log"
 	"github.com/go-acme/lego/v4/certificate"
-	"github.com/pkg/errors"
 	tccdn "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cdn/v20180606"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	tcssl "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl/v20191205"
@@ -69,9 +69,9 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 	}
 
 	if len(instanceIds) == 0 {
-		log.Info("no cdn instances to deploy")
+		logx.Info("no cdn instances to deploy")
 	} else {
-		log.Info("found cdn instances to deploy %s", instanceIds)
+		logx.Info("found cdn instances to deploy %s", instanceIds)
 		// 证书部署到 CDN 实例
 		// REF: https://cloud.tencent.com/document/product/400/91667
 		deployCertificateInstanceReq := tcssl.NewDeployCertificateInstanceRequest()
@@ -120,7 +120,7 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 					break
 				}
 			}
-			log.Info("waiting for deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount)
+			logx.Info("waiting for deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount)
 			time.Sleep(time.Second * 5)
 		}
 	}

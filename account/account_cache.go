@@ -2,8 +2,6 @@ package account
 
 import (
 	"crypto"
-	"crypto/ecdsa"
-	"crypto/x509"
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
@@ -16,20 +14,18 @@ import (
 	"github.com/chihqiang/tlsctl/pkg/certificates"
 	"github.com/chihqiang/tlsctl/pkg/fp"
 	"github.com/go-acme/lego/v4/certcrypto"
-	"golang.org/x/sync/errgroup"
 )
 
 const (
 	baseKeysFolderName = "keys"
 	accountFileName    = "account.json"
-	userKey            = "key"
 )
 
 type Cache struct {
 	email           string
 	server          string
 	accountFilePath string
-	keysPath        string
+	privateKeyPath  string
 }
 
 func NewCache(path, email string, server string) (*Cache, error) {
@@ -50,7 +46,7 @@ func NewCache(path, email string, server string) (*Cache, error) {
 	return &Cache{
 		email:           email,
 		server:          server,
-		keysPath:        filepath.Join(rootUserPath, baseKeysFolderName),
+		privateKeyPath:  filepath.Join(rootUserPath, baseKeysFolderName),
 		accountFilePath: filepath.Join(rootUserPath, accountFileName),
 	}, nil
 }
@@ -64,28 +60,21 @@ func (c *Cache) GetServer() string {
 }
 
 func (c *Cache) Save(account *Account) error {
-	var (
-		wg errgroup.Group
-	)
-	wg.Go(func() error {
-		jsonBytes, err := json.MarshalIndent(account, "", "\t")
-		if err != nil {
-			return err
-		}
-		return os.WriteFile(c.accountFilePath, jsonBytes, 0o600)
-	})
-	wg.Go(func() error {
-		privateKeyBytes, err := x509.MarshalECPrivateKey(account.Key.(*ecdsa.PrivateKey))
-		if err != nil {
-			return err
-		}
-		return os.WriteFile(c.keysPath, privateKeyBytes, 0o600)
-	})
-	return wg.Wait()
+	jsonBytes, err := json.MarshalIndent(account, "", "\t")
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(c.accountFilePath, jsonBytes, 0o600); err != nil {
+		return err
+	}
+	// 写入 PEM 格式私钥，与 LoadAccount/certificates.ParseX509 兼容，
+	// 并支持 ECDSA/RSA 两种密钥类型，避免对具体类型做硬断言。
+	privateKeyBlock := certcrypto.PEMBlock(account.Key)
+	return os.WriteFile(c.privateKeyPath, pem.EncodeToMemory(privateKeyBlock), 0o600)
 }
 func (c *Cache) Remove() {
 	_ = os.Remove(c.accountFilePath)
-	_ = os.Remove(c.keysPath)
+	_ = os.Remove(c.privateKeyPath)
 }
 func (c *Cache) LoadAccount() (*Account, error) {
 	fileBytes, err := os.ReadFile(c.accountFilePath)
@@ -97,7 +86,7 @@ func (c *Cache) LoadAccount() (*Account, error) {
 	if err != nil {
 		return nil, err
 	}
-	privateKey, err := LoadPrivateKey(c.keysPath)
+	privateKey, err := LoadPrivateKey(c.privateKeyPath)
 	if err != nil {
 		return nil, err
 	}

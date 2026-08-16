@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/caarlos0/env/v11"
+	"github.com/chihqiang/logx"
 	"github.com/chihqiang/tlsctl/deploy/tencentcloud/ssl"
-	"github.com/chihqiang/tlsctl/pkg/log"
 	"github.com/go-acme/lego/v4/certificate"
 	tcclb "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/clb/v20180317"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
@@ -127,7 +127,7 @@ func (d *Deploy) deployViaSslService(ctx context.Context, SSL *tcssl.Client, clo
 			}
 		}
 
-		log.Info("waiting for deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount)
+		logx.Info("waiting for deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount)
 		time.Sleep(time.Second * 5)
 	}
 
@@ -161,9 +161,9 @@ func (d *Deploy) deployToLoadbalancer(ctx context.Context, CLB *tcclb.Client, cl
 
 	// 遍历更新监听器证书
 	if len(listenerIds) == 0 {
-		log.Info("no clb listeners to deploy")
+		logx.Info("no clb listeners to deploy")
 	} else {
-		log.Info("found https/tcpssl/quic listeners to deploy")
+		logx.Info("found https/tcpssl/quic listeners to deploy")
 		var errs []error
 
 		for _, listenerId := range listenerIds {
@@ -223,7 +223,7 @@ func (d *Deploy) deployToRuleDomain(ctx context.Context, CLB *tcclb.Client, clou
 		CertId:  common.StringPtr(cloudCertId),
 	}
 	modifyDomainAttributesResp, err := CLB.ModifyDomainAttributes(modifyDomainAttributesReq)
-	log.Info("sdk request 'clb.ModifyDomainAttributes'  request: %#v response: %#v", modifyDomainAttributesReq, modifyDomainAttributesResp)
+	logx.Info("sdk request 'clb.ModifyDomainAttributes'  request: %#v response: %#v", modifyDomainAttributesReq, modifyDomainAttributesResp)
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'clb.ModifyDomainAttributes': %w", err)
 	}
@@ -238,7 +238,7 @@ func (d *Deploy) modifyListenerCertificate(ctx context.Context, CLB *tcclb.Clien
 	describeListenersReq.LoadBalancerId = common.StringPtr(cloudLoadbalancerId)
 	describeListenersReq.ListenerIds = common.StringPtrs([]string{cloudListenerId})
 	describeListenersResp, err := CLB.DescribeListeners(describeListenersReq)
-	log.Info("sdk request 'clb.DescribeListeners' request: %#v response: %#v", describeListenersReq, describeListenersResp)
+	logx.Info("sdk request 'clb.DescribeListeners' request: %#v response: %#v", describeListenersReq, describeListenersResp)
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'clb.DescribeListeners': %w", err)
 	} else if len(describeListenersResp.Response.Listeners) == 0 {
@@ -258,7 +258,7 @@ func (d *Deploy) modifyListenerCertificate(ctx context.Context, CLB *tcclb.Clien
 		modifyListenerReq.Certificate.SSLMode = common.StringPtr("UNIDIRECTIONAL")
 	}
 	modifyListenerResp, err := CLB.ModifyListener(modifyListenerReq)
-	log.Info("sdk request 'clb.ModifyListener' request: %#v response: %#v", modifyListenerReq, modifyListenerResp)
+	logx.Info("sdk request 'clb.ModifyListener' request: %#v response: %#v", modifyListenerReq, modifyListenerResp)
 	if err != nil {
 		return fmt.Errorf("failed to execute sdk request 'clb.ModifyListener': %w", err)
 	}

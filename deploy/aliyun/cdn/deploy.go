@@ -9,9 +9,8 @@ import (
 	aliyunCdn "github.com/alibabacloud-go/cdn-20180510/v5/client"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/caarlos0/env/v11"
-	"github.com/chihqiang/tlsctl/pkg/log"
+	"github.com/chihqiang/logx"
 	"github.com/go-acme/lego/v4/certificate"
-	"github.com/pkg/errors"
 )
 
 type Deploy struct {
@@ -32,7 +31,7 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 	domain := strings.TrimPrefix(d.Config.Domain, "*")
 	client, err := newClient(d.Config.AccessKeyId, d.Config.AccessKeySecret)
 	if err != nil {
-		return errors.Wrap(err, "failed to create sdk client")
+		return fmt.Errorf("failed to create sdk client: %w", err)
 	}
 	setCdnDomainSSLCertificateReq := &aliyunCdn.SetCdnDomainSSLCertificateRequest{
 		DomainName:  tea.String(domain),
@@ -44,8 +43,8 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 	}
 	setCdnDomainSSLCertificateResp, err := client.SetCdnDomainSSLCertificate(setCdnDomainSSLCertificateReq)
 	if err != nil {
-		return errors.Wrap(err, "failed to execute sdk request 'cdn.SetCdnDomainSSLCertificate'")
+		return fmt.Errorf("failed to execute sdk request 'cdn.SetCdnDomainSSLCertificate': %w", err)
 	}
-	log.Info("CDN domain name certificate has been set up %+v", setCdnDomainSSLCertificateResp)
+	logx.Info("CDN domain name certificate has been set up %+v", setCdnDomainSSLCertificateResp)
 	return nil
 }

@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/caarlos0/env/v11"
+	"github.com/chihqiang/logx"
 	"github.com/chihqiang/tlsctl/deploy/tencentcloud/ssl"
-	"github.com/chihqiang/tlsctl/pkg/log"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	tcteo "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/teo/v20220901"
@@ -44,6 +44,6 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 	if err != nil {
 		return err
 	}
-	log.Info("sdk request 'teo.ModifyHostsCertificate request: %#v  response:%#v", modifyHostsCertificateReq, modifyHostsCertificateResp)
+	logx.Info("sdk request 'teo.ModifyHostsCertificate request: %#v  response:%#v", modifyHostsCertificateReq, modifyHostsCertificateResp)
 	return nil
 }

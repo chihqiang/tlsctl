@@ -14,8 +14,15 @@ func deployCommand() *cli.Command {
 		Usage:                  `Publish the generated certificate and add it to the scheduled monitoring deployment`,
 		Flags:                  []cli.Flag{},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			rCache := setupResourceCache(cmd)
-			res, err := rCache.ReadResource(getDomain(cmd))
+			rCache, err := setupResourceCache(cmd)
+			if err != nil {
+				return err
+			}
+			domain, err := getDomain(cmd)
+			if err != nil {
+				return err
+			}
+			res, err := rCache.ReadResource(domain)
 			if err != nil {
 				return err
 			}

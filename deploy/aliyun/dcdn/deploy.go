@@ -9,9 +9,8 @@ import (
 	aliyunDcdn "github.com/alibabacloud-go/dcdn-20180115/v3/client"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/caarlos0/env/v11"
-	"github.com/chihqiang/tlsctl/pkg/log"
+	"github.com/chihqiang/logx"
 	"github.com/go-acme/lego/v4/certificate"
-	"github.com/pkg/errors"
 )
 
 type Deploy struct {
@@ -47,8 +46,8 @@ func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) 
 	}
 	setDcdnDomainSSLCertificateResp, err := client.SetDcdnDomainSSLCertificate(setDcdnDomainSSLCertificateReq)
 	if err != nil {
-		return errors.Wrap(err, "failed to execute sdk request 'dcdn.SetDcdnDomainSSLCertificate'")
+		return fmt.Errorf("failed to execute sdk request 'dcdn.SetDcdnDomainSSLCertificate': %w", err)
 	}
-	log.Info("CDN domain name certificate has been set up %+v", setDcdnDomainSSLCertificateResp)
+	logx.Info("CDN domain name certificate has been set up %+v", setDcdnDomainSSLCertificateResp)
 	return nil
 }

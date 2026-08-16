@@ -2,12 +2,13 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"path"
 	"runtime"
 
+	"github.com/chihqiang/logx"
 	"github.com/chihqiang/tlsctl/localhost"
 	"github.com/chihqiang/tlsctl/pkg/fp"
-	"github.com/chihqiang/tlsctl/pkg/log"
 	"github.com/urfave/cli/v3"
 )
 
@@ -32,7 +33,10 @@ func localhostCommand() *cli.Command {
 }
 
 func buildLocalHostSSL(cmd *cli.Command) error {
-	cStorage := setupResourceCache(cmd)
+	cStorage, err := setupResourceCache(cmd)
+	if err != nil {
+		return err
+	}
 	hostSSL, err := localhost.NewLocalHostSSL(path.Join(cmd.String(flgPath), "certificates", "localhost"))
 	if err != nil {
 		return err
@@ -45,9 +49,9 @@ func buildLocalHostSSL(cmd *cli.Command) error {
 		return err
 	}
 	if err := cStorage.SaveResource(resource); err != nil {
-		log.Error("error saving certificate: %v", err)
+		return fmt.Errorf("error saving certificate: %w", err)
 	}
-	log.Debug("Certificate for %s has been saved successfully at %s",
+	logx.Debug("Certificate for %s has been saved successfully at %s",
 		"localhost",
 		cStorage.GetSanitizedDomainSavePath("localhost"),
 	)
@@ -58,10 +62,10 @@ func buildLocalHostSSL(cmd *cli.Command) error {
 func localhostSSLInstallHelp(rootCAPath string) {
 	switch runtime.GOOS {
 	case "darwin":
-		log.Info("🔐 [macOS] Trust commands for the root certificate:")
-		log.Info("🛠 Install: sudo security add-trusted-cert -d -k /Library/Keychains/System.keychain '%s'", rootCAPath)
-		log.Info("🔎 Check: security find-certificate -c 'tlsctl'")
-		log.Info("🧹 Uninstall: sudo security delete-certificate -c 'tlsctl'")
+		logx.Info("🔐 [macOS] Trust commands for the root certificate:")
+		logx.Info("🛠 Install: sudo security add-trusted-cert -d -k /Library/Keychains/System.keychain '%s'", rootCAPath)
+		logx.Info("🔎 Check: security find-certificate -c 'tlsctl'")
+		logx.Info("🧹 Uninstall: sudo security delete-certificate -c 'tlsctl'")
 	case "linux":
 		var targetPath string
 		if fp.PathExists("/usr/local/share/ca-certificates/") {
@@ -69,19 +73,19 @@ func localhostSSLInstallHelp(rootCAPath string) {
 		} else if fp.PathExists("/etc/pki/ca-trust/source/anchors/") {
 			targetPath = "/etc/pki/ca-trust/source/anchors/tlsctl.pem"
 		} else {
-			log.Info("⚠️ Cannot determine system trust directory. Please install manually: '%s'", rootCAPath)
+			logx.Info("⚠️ Cannot determine system trust directory. Please install manually: '%s'", rootCAPath)
 			return
 		}
-		log.Info("🔐 [Linux] Trust commands for the root certificate:")
-		log.Info("🛠 Install: sudo cp '%s' '%s' && sudo update-ca-certificates", rootCAPath, targetPath)
-		log.Info("🔎 Check: ls '%s'", targetPath)
-		log.Info("🧹 Uninstall: sudo rm '%s' && sudo update-ca-certificates", targetPath)
+		logx.Info("🔐 [Linux] Trust commands for the root certificate:")
+		logx.Info("🛠 Install: sudo cp '%s' '%s' && sudo update-ca-certificates", rootCAPath, targetPath)
+		logx.Info("🔎 Check: ls '%s'", targetPath)
+		logx.Info("🧹 Uninstall: sudo rm '%s' && sudo update-ca-certificates", targetPath)
 	case "windows":
-		log.Info("🔐 [Windows] Trust commands for the root certificate (run in Administrator PowerShell):")
-		log.Info("🛠 Install: certutil -addstore -f Root \"%s\"", rootCAPath)
-		log.Info("🔎 Check: certutil -store Root | findstr tlsctl")
-		log.Info("🧹 Uninstall: certutil -delstore Root tlsctl")
+		logx.Info("🔐 [Windows] Trust commands for the root certificate (run in Administrator PowerShell):")
+		logx.Info("🛠 Install: certutil -addstore -f Root \"%s\"", rootCAPath)
+		logx.Info("🔎 Check: certutil -store Root | findstr tlsctl")
+		logx.Info("🧹 Uninstall: certutil -delstore Root tlsctl")
 	default:
-		log.Info("⚠️ Trust installation is not supported on this OS. Please install manually: '%s'", rootCAPath)
+		logx.Info("⚠️ Trust installation is not supported on this OS. Please install manually: '%s'", rootCAPath)
 	}
 }

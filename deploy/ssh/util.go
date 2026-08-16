@@ -3,12 +3,12 @@ package ssh
 import (
 	"bytes"
 	"fmt"
-	"github.com/pkg/errors"
+	"os"
+	"path/filepath"
+
 	"github.com/pkg/sftp"
 	"github.com/povsister/scp"
 	"golang.org/x/crypto/ssh"
-	"os"
-	"path/filepath"
 )
 
 func newSSHClient(host string, port int32, username string, password string, key string, keyPassphrase string) (*ssh.Client, error) {
@@ -56,7 +56,7 @@ func execSSHCommand(sshCli *ssh.Client, command string) (string, string, error) 
 	session.Stderr = stderrBuf
 	err = session.Run(command)
 	if err != nil {
-		return stdoutBuf.String(), stderrBuf.String(), errors.Wrap(err, "failed to execute ssh command")
+		return stdoutBuf.String(), stderrBuf.String(), fmt.Errorf("failed to execute ssh command: %w", err)
 	}
 	return stdoutBuf.String(), stderrBuf.String(), nil
 }
@@ -71,14 +71,14 @@ func writeFile(sshCli *ssh.Client, useSCP bool, path string, data []byte) error 
 func writeFileWithSCP(sshCli *ssh.Client, path string, data []byte) error {
 	scpClient, err := scp.NewClientFromExistingSSH(sshCli, &scp.ClientOption{})
 	if err != nil {
-		return errors.Wrap(err, "failed to create scp client")
+		return fmt.Errorf("failed to create scp client: %w", err)
 	}
 	defer scpClient.Close()
 
 	reader := bytes.NewReader(data)
 	err = scpClient.CopyToRemote(reader, path, &scp.FileTransferOption{})
 	if err != nil {
-		return errors.Wrap(err, "failed to write to remote file")
+		return fmt.Errorf("failed to write to remote file: %w", err)
 	}
 	return nil
 }
@@ -86,22 +86,22 @@ func writeFileWithSCP(sshCli *ssh.Client, path string, data []byte) error {
 func writeFileWithSFTP(sshCli *ssh.Client, path string, data []byte) error {
 	sftpCli, err := sftp.NewClient(sshCli)
 	if err != nil {
-		return errors.Wrap(err, "failed to create sftp client")
+		return fmt.Errorf("failed to create sftp client: %w", err)
 	}
 	defer sftpCli.Close()
 
 	if err := sftpCli.MkdirAll(filepath.Dir(path)); err != nil {
-		return errors.Wrap(err, "failed to create remote directory")
+		return fmt.Errorf("failed to create remote directory: %w", err)
 	}
 
 	file, err := sftpCli.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC)
 	if err != nil {
-		return errors.Wrap(err, "failed to open remote file")
+		return fmt.Errorf("failed to open remote file: %w", err)
 	}
 	defer file.Close()
 	_, err = file.Write(data)
 	if err != nil {
-		return errors.Wrap(err, "failed to write to remote file")
+		return fmt.Errorf("failed to write to remote file: %w", err)
 	}
 	return nil
 }
