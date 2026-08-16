@@ -18,11 +18,12 @@ func deployCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			domain, err := getDomain(cmd)
+			domains, err := getDomain(cmd)
 			if err != nil {
 				return err
 			}
-			res, err := rCache.ReadResource(domain)
+			// 部署以第一个域名为准（证书主域名，用于定位已保存的资源）
+			res, err := rCache.ReadResource(domains[0])
 			if err != nil {
 				return err
 			}

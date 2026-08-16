@@ -13,11 +13,11 @@ func createCommand() *cli.Command {
 		Usage:                  "Obtain and install a new SSL certificate",
 		Flags:                  []cli.Flag{},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			domain, err := getDomain(cmd)
+			domains, err := getDomain(cmd)
 			if err != nil {
 				return err
 			}
-			_, err = buildLegoSSL(cmd, domain)
+			_, err = buildLegoSSL(cmd, domains)
 			return err
 		},
 	}

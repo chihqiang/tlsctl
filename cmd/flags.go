@@ -125,10 +125,10 @@ func CreateFlags() []cli.Flag {
 			Usage: "Delay between the start of the TLS listener (use for TLSALPN-01 based challenges) and the validation of the challenge.",
 			Value: 0,
 		},
-		&cli.StringFlag{
+		&cli.StringSliceFlag{
 			Name:    flgDomain,
 			Aliases: []string{"d"},
-			Usage:   "Add a domain to the process. Can be specified multiple times.",
+			Usage:   "Add a domain to the certificate. Can be specified multiple times.",
 		},
 		&cli.StringFlag{
 			Name:  flgDeploy,

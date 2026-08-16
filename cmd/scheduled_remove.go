@@ -14,11 +14,11 @@ func removeScheduledCommand() *cli.Command {
 		Usage:                  "Delete scheduled tasks based on domain name",
 		Flags:                  []cli.Flag{},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			domain, err := getDomain(cmd)
+			domains, err := getDomain(cmd)
 			if err != nil {
 				return err
 			}
-			return deploy.JSONFileRemove(getDeployJson(cmd), []string{domain})
+			return deploy.JSONFileRemove(getDeployJson(cmd), domains)
 		},
 	}
 }

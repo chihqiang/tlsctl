@@ -16,19 +16,15 @@
 
 🚀 **多种部署方式支持**：支持本地部署、SSH 部署、腾讯云、阿里云等自动上传部署方式
 
-## ⚡ 一键安装（推荐，省时省力）
+## ⚡ 安装
 
-### 方式一：`go install` 安装（需已安装 Go 1.24+）
+### 方式一：`go install`（推荐，需 Go 1.24+）
 
 ```bash
 go install github.com/chihqiang/tlsctl/cmd/tlsctl@latest
 ```
 
-> 安装完成后，可执行文件位于 `$(go env GOPATH)/bin`，请确保该目录已加入 `PATH`：
->
-> ```bash
-> export PATH="$(go env GOPATH)/bin:$PATH"
-> ```
+> 安装完成后，请确保 `$(go env GOPATH)/bin` 已加入 `PATH`。
 
 ### 方式二：下载源码 + `make` 编译
 
@@ -38,21 +34,19 @@ cd tlsctl
 make build
 ```
 
-> 编译产物为当前目录下的 `tlsctl`，可将其复制到系统路径（可选）：
->
-> ```bash
-> sudo cp tlsctl /usr/local/bin/
-> ```
+> 编译产物为当前目录下的 `tlsctl`，可 `sudo cp tlsctl /usr/local/bin/`。
 
-### 🚀 快速开始
+更多安装细节见 [安装与升级](docs/install.md)。
 
-#### 申请证书(以webroot为例)
+## 🚀 快速开始
+
+### 申请证书（以 webroot 为例）
 
 ```bash
 tlsctl create --domain="test.example.com" --http.webroot="/data/wwwroot/test.example.com"
 ```
 
-#### 通过本地部署到nginx目录
+### 本地部署到 nginx 目录
 
 ```bash
 tlsctl deploy --domain="test.example.com" --deploy="local"
@@ -60,105 +54,20 @@ tlsctl deploy --domain="test.example.com" --deploy="local"
 
 > 默认保存路径为：`/etc/nginx/ssl/`
 
-## ⏱️ 定时任务
-
-### 执行证书续签任务
+### 定时任务（自动续签）
 
 ```bash
 tlsctl scheduled:run
 ```
 
-### 添加为 systemd 启动服务（推荐方式）
+## 📚 详细文档
 
-```yaml
-cat > /etc/systemd/system/tlsctl-scheduled.service << EOF
-[Unit]
-Description=Start tlsctl Scheduled Task
-After=network.target
-
-[Service]
-Type=simple
-ExecStart=/usr/local/bin/tlsctl scheduled:run --http.webroot="/var/www/html"
-Restart=always
-User=root
-
-[Install]
-WantedBy=multi-user.target
-EOF
-```
-
-## 常用 systemctl 命令
-
-```bash
-# 重新加载所有 systemd 服务配置文件（全局作用）
-systemctl daemon-reload
-# 启动服务
-systemctl start tlsctl-scheduled.service
-# 停止服务
-systemctl stop tlsctl-scheduled.service
-# 重启服务
-systemctl restart tlsctl-scheduled.service
-# 重载配置（服务支持 reload 才生效）
-systemctl reload tlsctl-scheduled.service
-# 设置为开机自启
-systemctl enable tlsctl-scheduled.service
-# 禁用开机启动
-systemctl disable tlsctl-scheduled.service
-# 查询是否已设置开机启动
-systemctl is-enabled tlsctl-scheduled.service
-# 查看当前状态（运行中 / 停止 / 异常）
-systemctl status tlsctl-scheduled.service
-# 查看全部日志
-journalctl -u tlsctl-scheduled.service
-# 实时跟踪日志输出
-journalctl -fu tlsctl-scheduled.service
-# 查看最近 10 分钟内的日志
-journalctl -u tlsctl-scheduled --since "10 minutes ago"
-# 修改了 .service 文件后必须执行
-systemctl daemon-reload
-# 重置“失败”状态（如服务启动失败后恢复）
-systemctl reset-failed tlsctl-scheduled.service
-```
-
-## ⚙️ 本地配置 `.env`
-
-你可以通过 `.env` 文件配置自动部署后动作，例如自动重载 nginx：
-
-```bash
-cat > ~/.tlsctl/.env << EOF
-LOCAL_POST_COMMAND="nginx -s reload"
-EOF
-```
-
-## 📦 Nginx 配置示例
-
-### 申请证书时添加 Webroot 路径
-
-```bash
-tlsctl create --domain="test.example.com" --http.webroot="/var/www/html"
-
-//Add in nginx configuration
-location  /.well-known/ {
-  alias /var/www/html/.well-known/;
-}
-```
-
-### 添加到 nginx 配置中
-
-```yml
-listen 443 ssl;
-ssl_certificate /etc/nginx/ssl/test.example.com.pem;
-ssl_certificate_key /etc/nginx/ssl/test.example.com.key;
-ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
-ssl_protocols TLSv1.1 TLSv1.2 TLSv1.3;
-ssl_prefer_server_ciphers on;
-ssl_session_cache shared:SSL:10m;
-ssl_session_timeout 10m;
-```
-
-## 🔐 使用 EAB（External Account Binding）
-
-当使用 ZeroSSL、Google CA 等服务商时，你可能需要配置 `kid` 和 `hmacEncoded`：
-
-- ZeroSSL 生成方式：[点击查看](https://zerossl.com/documentation/acme/generate-eab-credentials/)
-- Google Public CA 教程：[点击查看](https://cloud.google.com/certificate-manager/docs/public-ca-tutorial?hl=zh-cn)
+| 文档 | 说明 |
+| ---- | ---- |
+| [命令详解](docs/commands.md) | 全部子命令与参数 |
+| [环境变量配置](docs/env.md) | `.env` 与 DNS/部署环境变量 |
+| [部署方式](docs/deploy.md) | local / SSH / 腾讯云 / 阿里云 等 |
+| [定时任务](docs/scheduled.md) | 自动续签与 systemd 配置 |
+| [Nginx 配置](docs/nginx.md) | 与 Nginx 配合示例 |
+| [EAB 使用](docs/eab.md) | ZeroSSL / Google CA 配置 |
+| [安装与升级](docs/install.md) | 安装方式与常见问题 |

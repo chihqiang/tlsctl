@@ -47,12 +47,12 @@ func generatedEmail() string {
 	return "tlsctl-" + b.String() + "@" + runtime.GOOS + ".com"
 }
 
-func getDomain(ctx *cli.Command) (string, error) {
-	domain := ctx.String(flgDomain)
-	if domain == "" {
-		return "", fmt.Errorf("you have to pass a domain to the program using --%s or -d", flgDomain)
+func getDomain(ctx *cli.Command) ([]string, error) {
+	domains := ctx.StringSlice(flgDomain)
+	if len(domains) == 0 {
+		return nil, fmt.Errorf("you have to pass a domain to the program using --%s or -d", flgDomain)
 	}
-	return domain, nil
+	return domains, nil
 }
 
 func getDeployJson(ctx *cli.Command) string {
@@ -118,7 +118,7 @@ func setupClient(cmd *cli.Command, ac *account.Cache) (*lego.Client, error) {
 	return client, nil
 }
 
-func buildLegoSSL(cmd *cli.Command, domain string) (*certificate.Resource, error) {
+func buildLegoSSL(cmd *cli.Command, domains []string) (*certificate.Resource, error) {
 	rCache, err := setupResourceCache(cmd)
 	if err != nil {
 		return nil, err
@@ -145,7 +145,7 @@ func buildLegoSSL(cmd *cli.Command, domain string) (*certificate.Resource, error
 		return nil, fmt.Errorf("SetConfigChallenge: %w", err)
 	}
 	res, err := client.Certificate.Obtain(certificate.ObtainRequest{
-		Domains: []string{domain},
+		Domains: domains,
 		Bundle:  true,
 	})
 	if err != nil {
@@ -154,12 +154,12 @@ func buildLegoSSL(cmd *cli.Command, domain string) (*certificate.Resource, error
 	if err := rCache.SaveResource(res); err != nil {
 		logx.Warn("SaveResource err: %v", err)
 	}
-	sanitizedDomain, err := resource.SanitizedDomain(domain)
+	sanitizedDomain, err := resource.SanitizedDomain(res.Domain)
 	if err != nil {
 		return nil, fmt.Errorf("sanitize domain: %w", err)
 	}
 	logx.Debug("Certificate for %s has been saved successfully at %s",
-		domain,
+		res.Domain,
 		rCache.GetSanitizedDomainSavePath(sanitizedDomain),
 	)
 	return res, nil

@@ -69,7 +69,7 @@ func runScheduled(cmd *cli.Command) {
 		resource, err = storage.ReadResource(domain)
 		if err != nil {
 			logx.Warn("Failed to read cert for %s: %v", domain, err)
-			resource, err = buildLegoSSL(cmd, domain)
+			resource, err = buildLegoSSL(cmd, []string{domain})
 			if err != nil {
 				logx.Warn("Failed to obtain certificate for %s: %v", domain, err)
 				continue
@@ -85,7 +85,7 @@ func runScheduled(cmd *cli.Command) {
 			logx.Info("%s will expire in %d days", domain, daysLeft)
 			if daysLeft < cmd.Int("day") {
 				renew = true
-				resource, err = buildLegoSSL(cmd, domain)
+				resource, err = buildLegoSSL(cmd, []string{domain})
 				if err != nil {
 					logx.Warn("Failed to renew certificate for %s: %v", domain, err)
 					continue
