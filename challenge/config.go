@@ -2,9 +2,11 @@ package challenge
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/chihqiang/tlsctl/challenge/dns"
+	"github.com/chihqiang/tlsctl/challenge/http"
 	"github.com/chihqiang/tlsctl/challenge/httpport"
 	"github.com/chihqiang/tlsctl/challenge/memcached"
 	"github.com/chihqiang/tlsctl/challenge/s3"
@@ -20,32 +22,60 @@ type Config struct {
 	HTTPMemcachedHost []string
 	S3Bucket          string
 	HTTPPort          string
+	HTTPProxyHeader   string
 	TLSPort           string
 	TLS               bool
 	Delay             time.Duration
 }
 
 func SetConfigChallenge(client *lego.Client, cfg Config) error {
-	var challenge IChallenge
+	var count int
+
+	// DNS-01
 	if cfg.DNS != "" {
-		challenge = &dns.Challenge{DNS: cfg.DNS}
-	} else if cfg.Webroot != "" {
-		challenge = &webroot.Challenge{WebRoot: cfg.Webroot}
-	} else if len(cfg.HTTPMemcachedHost) > 0 {
-		challenge = &memcached.Challenge{Hosts: cfg.HTTPMemcachedHost}
-	} else if cfg.S3Bucket != "" {
-		challenge = &s3.Challenge{Bucket: cfg.S3Bucket}
-	} else if cfg.HTTPPort != "" {
-		challenge = &httpport.Challenge{HostPort: cfg.HTTPPort}
-	} else if cfg.TLSPort != "" || cfg.TLS {
-		challenge = &tls.Challenge{HostPort: cfg.TLSPort, TLS: cfg.TLS, Delay: cfg.Delay}
+		if err := (&dns.Challenge{DNS: cfg.DNS}).Set(client); err != nil {
+			return fmt.Errorf("DNS-01 challenge: %w", err)
+		}
+		count++
 	}
-	if challenge == nil {
+
+	// HTTP-01：webroot / memcached / s3 / httpport 中至多选一个
+	var httpChallenges []IChallenge
+	if cfg.Webroot != "" {
+		httpChallenges = append(httpChallenges, &webroot.Challenge{WebRoot: cfg.Webroot})
+	}
+	if len(cfg.HTTPMemcachedHost) > 0 {
+		httpChallenges = append(httpChallenges, &memcached.Challenge{Hosts: cfg.HTTPMemcachedHost})
+	}
+	if cfg.S3Bucket != "" {
+		httpChallenges = append(httpChallenges, &s3.Challenge{Bucket: cfg.S3Bucket})
+	}
+	if cfg.HTTPPort != "" {
+		httpChallenges = append(httpChallenges, &httpport.Challenge{HostPort: cfg.HTTPPort})
+	}
+	if cfg.HTTPProxyHeader != "" {
+		httpChallenges = append(httpChallenges, &http.Challenge{HeaderName: cfg.HTTPProxyHeader})
+	}
+	if len(httpChallenges) > 1 {
+		return errors.New("conflicting HTTP-01 challenge providers specified")
+	}
+	if len(httpChallenges) == 1 {
+		if err := httpChallenges[0].Set(client); err != nil {
+			return fmt.Errorf("HTTP-01 challenge: %w", err)
+		}
+		count++
+	}
+
+	// TLS-ALPN-01
+	if cfg.TLSPort != "" || cfg.TLS {
+		if err := (&tls.Challenge{HostPort: cfg.TLSPort, TLS: cfg.TLS, Delay: cfg.Delay}).Set(client); err != nil {
+			return fmt.Errorf("TLS-ALPN-01 challenge: %w", err)
+		}
+		count++
+	}
+
+	if count == 0 {
 		return errors.New("challenge is required")
 	}
-	return SetChallenge(client, challenge)
-}
-
-func SetChallenge(client *lego.Client, challenge IChallenge) error {
-	return challenge.Set(client)
+	return nil
 }

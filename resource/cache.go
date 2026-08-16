@@ -63,19 +63,19 @@ func (s *Cache) SaveResource(resource *certificate.Resource) error {
 		return err
 	}
 	if err := s.writeFile(sanitizedDomain, CertExt, resource.Certificate); err != nil {
-		return fmt.Errorf("Unable to save Certificate for domain %s\n\t%v", domain, err)
+		return fmt.Errorf("unable to save Certificate for domain %s: %w", domain, err)
 	}
 	if err := s.writeFile(sanitizedDomain, IssuerExt, resource.IssuerCertificate); err != nil {
-		return fmt.Errorf("Unable to save IssuerCertificate for domain  %s\n\t%v", domain, err)
+		return fmt.Errorf("unable to save IssuerCertificate for domain %s: %w", domain, err)
 	}
 	if resource.PrivateKey != nil {
 		if err := s.writeCertificateFiles(sanitizedDomain, resource); err != nil {
-			return fmt.Errorf("Unable to save PrivateKey for domain %s\n\t%v", domain, err)
+			return fmt.Errorf("unable to save PrivateKey for domain %s: %w", domain, err)
 		}
 	}
 	jsonBytes, err := json.MarshalIndent(resource, "", "\t")
 	if err != nil {
-		return fmt.Errorf("Unable to marshal CertResource for domain %s\n\t%v", domain, err)
+		return fmt.Errorf("unable to marshal CertResource for domain %s: %w", domain, err)
 	}
 	return s.writeFile(sanitizedDomain, ResourceExt, jsonBytes)
 }
@@ -109,23 +109,23 @@ func (s *Cache) ReadResource(domain string) (*certificate.Resource, error) {
 	}
 	raw, err := s.readFile(sanitizedDomain, ResourceExt)
 	if err != nil {
-		return nil, fmt.Errorf("Error while loading the meta data for domain %s\n\t%v", domain, err)
+		return nil, fmt.Errorf("error while loading the meta data for domain %s: %w", domain, err)
 	}
 	var resource certificate.Resource
 	if err = json.Unmarshal(raw, &resource); err != nil {
-		return nil, fmt.Errorf("Error while marshaling the meta data for domain %s\n\t%v", domain, err)
+		return nil, fmt.Errorf("error while unmarshaling the meta data for domain %s: %w", domain, err)
 	}
 	resource.PrivateKey, err = s.readFile(sanitizedDomain, KeyExt)
 	if err != nil {
-		return nil, fmt.Errorf("load key for domain %s\n\t%v", domain, err)
+		return nil, fmt.Errorf("load key for domain %s: %w", domain, err)
 	}
 	resource.IssuerCertificate, err = s.readFile(sanitizedDomain, IssuerExt)
 	if err != nil {
-		return nil, fmt.Errorf("load IssuerCertificate for domain %s\n\t%v", domain, err)
+		return nil, fmt.Errorf("load IssuerCertificate for domain %s: %w", domain, err)
 	}
 	resource.Certificate, err = s.readFile(sanitizedDomain, CertExt)
 	if err != nil {
-		return nil, fmt.Errorf("load Certificate for domain %s\n\t%v", domain, err)
+		return nil, fmt.Errorf("load Certificate for domain %s: %w", domain, err)
 	}
 	return &resource, nil
 }

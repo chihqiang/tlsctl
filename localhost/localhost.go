@@ -252,9 +252,9 @@ func (l *SSL) getUserAndHostname() string {
 	}
 	if h, err := os.Hostname(); err == nil {
 		userAndHostname += h
-	}
-	if err == nil && u.Name != "" && u.Name != u.Username {
-		userAndHostname += " (" + u.Name + ")"
+		if u != nil && u.Name != "" && u.Name != u.Username {
+			userAndHostname += " (" + u.Name + ")"
+		}
 	}
 	return userAndHostname
 }

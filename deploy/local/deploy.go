@@ -29,14 +29,19 @@ func (p *Deploy) WithEnvConfig() error {
 }
 
 func (p *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) error {
-	// 未配置输出路径时，使用默认目录 /etc/nginx/ssl/
-	if p.Config.CertPath == "" && p.Config.KeyPath == "" {
+	// 未配置输出路径时，使用默认目录 /etc/nginx/ssl/；
+	// 证书与私钥路径分别判断，避免只配置其中一个时另一个为空导致写错位置。
+	if p.Config.CertPath == "" || p.Config.KeyPath == "" {
 		sanitizedDomain, err := resource.SanitizedDomain(certificate.Domain)
 		if err != nil {
 			return fmt.Errorf("failed to sanitize domain: %w", err)
 		}
-		p.Config.CertPath = filepath.Join(deployLocalPath, sanitizedDomain+resource.PemExt)
-		p.Config.KeyPath = filepath.Join(deployLocalPath, sanitizedDomain+resource.KeyExt)
+		if p.Config.CertPath == "" {
+			p.Config.CertPath = filepath.Join(deployLocalPath, sanitizedDomain+resource.PemExt)
+		}
+		if p.Config.KeyPath == "" {
+			p.Config.KeyPath = filepath.Join(deployLocalPath, sanitizedDomain+resource.KeyExt)
+		}
 	}
 	// 执行前置命令
 	if p.Config.PreCommand != "" {

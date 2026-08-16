@@ -3,17 +3,23 @@ package deploy
 import (
 	"context"
 	"slices"
+	"time"
 
 	"github.com/chihqiang/tlsctl/pkg/fp"
 	"github.com/go-acme/lego/v4/certificate"
 )
+
+// deployTimeout 是单次部署的整体超时，防止云端轮询（如腾讯云）永不完成导致进程卡死。
+const deployTimeout = 10 * time.Minute
 
 func RunWithJSONFile(filePath, name string, certificate *certificate.Resource) error {
 	envDeploy, err := Get(name)
 	if err != nil {
 		return err
 	}
-	if err := envDeploy.Deploy(context.Background(), certificate); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), deployTimeout)
+	defer cancel()
+	if err := envDeploy.Deploy(ctx, certificate); err != nil {
 		return err
 	}
 	return JSONFileSet(filePath, DomainDeploys{

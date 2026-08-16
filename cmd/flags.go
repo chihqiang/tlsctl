@@ -23,6 +23,7 @@ const (
 	flgHTTPMemcachedHost = "http.memcached-host"
 	flgHTTPS3Bucket      = "http.s3-bucket"
 	flgHTTPPort          = "http.port"
+	flgHTTPProxyHeader   = "http.proxy-header"
 
 	flgTLS      = "tls"
 	flgTLSPort  = "tls.port"
@@ -105,6 +106,10 @@ func CreateFlags() []cli.Flag {
 			Name:  flgHTTPPort,
 			Usage: "Set the port and interface to use for HTTP-01 based challenges to listen on. Supported: interface:port or :port.",
 			Value: ":80",
+		},
+		&cli.StringFlag{
+			Name:  flgHTTPProxyHeader,
+			Usage: "Set the proxy header to use for HTTP-01 based challenges. Used when the HTTP-01 challenge is behind a reverse proxy.",
 		},
 		&cli.BoolFlag{
 			Name:  flgTLS,

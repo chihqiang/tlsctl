@@ -137,6 +137,7 @@ func buildLegoSSL(cmd *cli.Command, domain string) (*certificate.Resource, error
 		HTTPMemcachedHost: cmd.StringSlice(flgHTTPMemcachedHost),
 		S3Bucket:          cmd.String(flgHTTPS3Bucket),
 		HTTPPort:          cmd.String(flgHTTPPort),
+		HTTPProxyHeader:   cmd.String(flgHTTPProxyHeader),
 		TLSPort:           cmd.String(flgTLSPort),
 		TLS:               cmd.Bool(flgTLS),
 		Delay:             cmd.Duration(flgTLSDelay),

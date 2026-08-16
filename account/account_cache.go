@@ -17,7 +17,9 @@ import (
 )
 
 const (
-	baseKeysFolderName = "keys"
+	// privateKeyFileName 是账号私钥文件名（无扩展名）。
+	// 保持文件名 "keys" 以兼容历史版本已生成的账号数据。
+	privateKeyFileName = "keys"
 	accountFileName    = "account.json"
 )
 
@@ -46,7 +48,7 @@ func NewCache(path, email string, server string) (*Cache, error) {
 	return &Cache{
 		email:           email,
 		server:          server,
-		privateKeyPath:  filepath.Join(rootUserPath, baseKeysFolderName),
+		privateKeyPath:  filepath.Join(rootUserPath, privateKeyFileName),
 		accountFilePath: filepath.Join(rootUserPath, accountFileName),
 	}, nil
 }
