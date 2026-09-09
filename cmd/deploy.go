@@ -3,22 +3,21 @@ package cmd
 import (
 	"context"
 
+	"github.com/chihqiang/cli"
 	"github.com/chihqiang/tlsctl/deploy"
-	"github.com/urfave/cli/v3"
 )
 
 func deployCommand() *cli.Command {
 	return &cli.Command{
-		UseShortOptionHandling: true,
-		Name:                   "deploy",
-		Usage:                  `Publish the generated certificate and add it to the scheduled monitoring deployment`,
-		Flags:                  []cli.Flag{},
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			rCache, err := setupResourceCache(cmd)
+		Name:  "deploy",
+		Usage: `Publish the generated certificate and add it to the scheduled monitoring deployment`,
+		Flags: deployFlags(),
+		Action: func(ctx context.Context, in *cli.Input, _ *cli.Output) error {
+			rCache, err := setupResourceCache(in)
 			if err != nil {
 				return err
 			}
-			domains, err := getDomain(cmd)
+			domains, err := getDomain(in)
 			if err != nil {
 				return err
 			}
@@ -27,7 +26,7 @@ func deployCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			return deploy.RunWithJSONFile(getDeployJson(cmd), cmd.String(flgDeploy), res)
+			return deploy.RunWithJSONFile(getDeployJson(in), in.String(flgDeploy), res)
 		},
 	}
 }

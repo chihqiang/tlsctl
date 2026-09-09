@@ -3,19 +3,18 @@ package cmd
 import (
 	"context"
 
+	"github.com/chihqiang/cli"
 	"github.com/chihqiang/tlsctl/pkg/stdout"
 	"github.com/chihqiang/tlsctl/resource"
-	"github.com/urfave/cli/v3"
 )
 
 func listCommand() *cli.Command {
 	return &cli.Command{
-		UseShortOptionHandling: true,
-		Name:                   "list",
-		Usage:                  "List all certificates installed on this machine",
-		Flags:                  []cli.Flag{},
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			cStorage, err := setupResourceCache(cmd)
+		Name:  "list",
+		Usage: "List all certificates installed on this machine",
+		Flags: pathFlags(),
+		Action: func(ctx context.Context, in *cli.Input, _ *cli.Output) error {
+			cStorage, err := setupResourceCache(in)
 			if err != nil {
 				return err
 			}

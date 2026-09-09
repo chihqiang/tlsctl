@@ -4,19 +4,18 @@ import (
 	"context"
 	"strings"
 
+	"github.com/chihqiang/cli"
 	"github.com/chihqiang/tlsctl/deploy"
 	"github.com/chihqiang/tlsctl/pkg/stdout"
-	"github.com/urfave/cli/v3"
 )
 
 func listScheduledCommand() *cli.Command {
 	return &cli.Command{
-		UseShortOptionHandling: true,
-		Name:                   "scheduled:list",
-		Usage:                  "List scheduled tasks",
-		Flags:                  []cli.Flag{},
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			domainDeploys, err := deploy.JSONFileLoad(getDeployJson(cmd))
+		Name:  "scheduled:list",
+		Usage: "List scheduled tasks",
+		Flags: pathFlags(),
+		Action: func(ctx context.Context, in *cli.Input, _ *cli.Output) error {
+			domainDeploys, err := deploy.JSONFileLoad(getDeployJson(in))
 			if err != nil {
 				return err
 			}
