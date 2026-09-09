@@ -7,17 +7,16 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/urfave/cli/v3"
+	"github.com/chihqiang/cli"
 )
 
 func clearCommand() *cli.Command {
 	return &cli.Command{
-		UseShortOptionHandling: true,
-		Name:                   "clear",
-		Usage:                  "Clean up all SSL certificates, ACME account data, and related temporary files",
-		Flags:                  []cli.Flag{},
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			dir := cmd.String(flgPath)
+		Name:  "clear",
+		Usage: "Clean up all SSL certificates, ACME account data, and related temporary files",
+		Flags: pathFlags(),
+		Action: func(ctx context.Context, in *cli.Input, _ *cli.Output) error {
+			dir := in.String(flgPath)
 			if err := validateRemovablePath(dir); err != nil {
 				return err
 			}

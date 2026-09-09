@@ -4,19 +4,18 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/chihqiang/cli"
 	"github.com/chihqiang/tlsctl/dns"
 	"github.com/chihqiang/tlsctl/pkg/stdout"
 	"github.com/chihqiang/tlsctl/pkg/structs"
-	"github.com/urfave/cli/v3"
 )
 
 func dnsHelpCommand() *cli.Command {
 	return &cli.Command{
-		UseShortOptionHandling: true,
-		Name:                   "help:dns",
-		Usage:                  `Show DNS providers and their corresponding environment/configuration fields`,
-		Flags:                  []cli.Flag{},
-		Action: func(ctx context.Context, cmd *cli.Command) error {
+		Name:  "help:dns",
+		Usage: `Show DNS providers and their corresponding environment/configuration fields`,
+		Flags: []cli.Flag{},
+		Action: func(ctx context.Context, _ *cli.Input, _ *cli.Output) error {
 			maps := structs.TagsMaps[dns.IDNSProvider](dns.All())
 			tp := stdout.NewTablePrinter()
 			for _, key := range maps.Keys {

@@ -6,45 +6,46 @@ import (
 	"path"
 	"runtime"
 
+	"github.com/chihqiang/cli"
 	"github.com/chihqiang/logx"
 	"github.com/chihqiang/tlsctl/localhost"
 	"github.com/chihqiang/tlsctl/pkg/fp"
-	"github.com/urfave/cli/v3"
 )
 
-func localhostCommand() *cli.Command {
-	return &cli.Command{
-		UseShortOptionHandling: true,
-		Name:                   "localhost",
-		Usage:                  "Build local development ssl certificate",
-		Flags: []cli.Flag{
-			&cli.StringSliceFlag{
-				Name: "hosts",
-				Value: []string{
-					"localhost",
-					"127.0.0.1",
-				},
-			},
-		},
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			return buildLocalHostSSL(cmd)
+func hostsFlag() cli.Flag {
+	return &cli.StringSliceFlag{
+		Name: "hosts",
+		Value: []string{
+			"localhost",
+			"127.0.0.1",
 		},
 	}
 }
 
-func buildLocalHostSSL(cmd *cli.Command) error {
-	cStorage, err := setupResourceCache(cmd)
+func localhostCommand() *cli.Command {
+	return &cli.Command{
+		Name:  "localhost",
+		Usage: "Build local development ssl certificate",
+		Flags: []cli.Flag{pathFlag(), hostsFlag()},
+		Action: func(ctx context.Context, in *cli.Input, _ *cli.Output) error {
+			return buildLocalHostSSL(in)
+		},
+	}
+}
+
+func buildLocalHostSSL(in *cli.Input) error {
+	cStorage, err := setupResourceCache(in)
 	if err != nil {
 		return err
 	}
-	hostSSL, err := localhost.NewLocalHostSSL(path.Join(cmd.String(flgPath), "certificates", "localhost"))
+	hostSSL, err := localhost.NewLocalHostSSL(path.Join(in.String(flgPath), "certificates", "localhost"))
 	if err != nil {
 		return err
 	}
 	if err = hostSSL.LoadCA(); err != nil {
 		return err
 	}
-	resource, err := hostSSL.BuildResource(cmd.StringSlice("hosts"))
+	resource, err := hostSSL.BuildResource(in.StringSlice("hosts"))
 	if err != nil {
 		return err
 	}
