@@ -79,7 +79,11 @@ func (l *SSL) buildCert(hosts []string) (certificate []byte, privateKey []byte, 
 	if err != nil {
 		return nil, nil, err
 	}
-	pub := priv.(crypto.Signer).Public()
+	signer, ok := priv.(crypto.Signer)
+	if !ok {
+		return nil, nil, fmt.Errorf("private key is not a signer")
+	}
+	pub := signer.Public()
 	// Certificates last for 2 years and 3 months, which is always less than
 	// 825 days, the limit that macOS/iOS apply to all certificates,
 	// including custom roots. See https://support.apple.com/en-us/HT210176.
@@ -185,7 +189,11 @@ func (l *SSL) buildNewCa() (certificateMemory []byte, keyMemory []byte, err erro
 	if err != nil {
 		return nil, nil, err
 	}
-	pub := priv.(crypto.Signer).Public()
+	signer, ok := priv.(crypto.Signer)
+	if !ok {
+		return nil, nil, fmt.Errorf("private key is not a signer")
+	}
+	pub := signer.Public()
 	spkiASN1, err := x509.MarshalPKIXPublicKey(pub)
 	if err != nil {
 		return nil, nil, err

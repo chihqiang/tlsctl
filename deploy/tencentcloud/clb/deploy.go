@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
-	"github.com/caarlos0/env/v11"
 	"github.com/chihqiang/logx"
+	dcommon "github.com/chihqiang/tlsctl/deploy/common"
+	tccommon "github.com/chihqiang/tlsctl/deploy/tencentcloud/common"
 	"github.com/chihqiang/tlsctl/deploy/tencentcloud/ssl"
 	"github.com/go-acme/lego/v4/certificate"
 	tcclb "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/clb/v20180317"
@@ -20,12 +20,11 @@ type Deploy struct {
 }
 
 func (d *Deploy) WithEnvConfig() error {
-	var cfg Config
-	err := env.Parse(&cfg)
+	cfg, err := dcommon.ParseConfig[Config]()
 	if err != nil {
 		return err
 	}
-	d.Config = &cfg
+	d.Config = cfg
 	return nil
 }
 func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) error {
@@ -89,49 +88,7 @@ func (d *Deploy) deployViaSslService(ctx context.Context, SSL *tcssl.Client, clo
 		return fmt.Errorf("failed to execute sdk request 'ssl.DeployCertificateInstance': %w", err)
 	}
 
-	// 循环获取部署任务详情，等待任务状态变更
-	// REF: https://cloud.tencent.com.cn/document/api/400/91658
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-
-		describeHostDeployRecordDetailReq := tcssl.NewDescribeHostDeployRecordDetailRequest()
-		describeHostDeployRecordDetailReq.DeployRecordId = common.StringPtr(fmt.Sprintf("%d", *deployCertificateInstanceResp.Response.DeployRecordId))
-		describeHostDeployRecordDetailResp, err := SSL.DescribeHostDeployRecordDetail(describeHostDeployRecordDetailReq)
-		if err != nil {
-			return fmt.Errorf("failed to execute sdk request 'ssl.DescribeHostDeployRecordDetail': %w", err)
-		}
-
-		var runningCount, succeededCount, failedCount, totalCount int64
-		if describeHostDeployRecordDetailResp.Response.TotalCount == nil {
-			return errors.New("unexpected deployment job status")
-		} else {
-			if describeHostDeployRecordDetailResp.Response.RunningTotalCount != nil {
-				runningCount = *describeHostDeployRecordDetailResp.Response.RunningTotalCount
-			}
-			if describeHostDeployRecordDetailResp.Response.SuccessTotalCount != nil {
-				succeededCount = *describeHostDeployRecordDetailResp.Response.SuccessTotalCount
-			}
-			if describeHostDeployRecordDetailResp.Response.FailedTotalCount != nil {
-				failedCount = *describeHostDeployRecordDetailResp.Response.FailedTotalCount
-			}
-			if describeHostDeployRecordDetailResp.Response.TotalCount != nil {
-				totalCount = *describeHostDeployRecordDetailResp.Response.TotalCount
-			}
-
-			if succeededCount+failedCount == totalCount {
-				break
-			}
-		}
-
-		logx.Info("waiting for deployment job completion (running: %d, succeeded: %d, failed: %d, total: %d) ...", runningCount, succeededCount, failedCount, totalCount)
-		time.Sleep(time.Second * 5)
-	}
-
-	return nil
+	return tccommon.WaitForDeploy(ctx, SSL, *deployCertificateInstanceResp.Response.DeployRecordId)
 }
 
 func (d *Deploy) deployToLoadbalancer(ctx context.Context, CLB *tcclb.Client, cloudCertId string) error {

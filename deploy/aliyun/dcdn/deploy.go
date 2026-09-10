@@ -8,8 +8,8 @@ import (
 
 	aliyunDcdn "github.com/alibabacloud-go/dcdn-20180115/v3/client"
 	"github.com/alibabacloud-go/tea/tea"
-	"github.com/caarlos0/env/v11"
 	"github.com/chihqiang/logx"
+	dcommon "github.com/chihqiang/tlsctl/deploy/common"
 	"github.com/go-acme/lego/v4/certificate"
 )
 
@@ -18,12 +18,11 @@ type Deploy struct {
 }
 
 func (d *Deploy) WithEnvConfig() error {
-	var cfg Config
-	err := env.Parse(&cfg)
+	cfg, err := dcommon.ParseConfig[Config]()
 	if err != nil {
 		return err
 	}
-	d.Config = &cfg
+	d.Config = cfg
 	return nil
 }
 

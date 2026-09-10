@@ -104,4 +104,68 @@ tlsctl create --domain="*.example.com" --dns="aliyun"
 | `vod` | `ALIYUN_REGION`、`ALIYUN_DOMAIN` |
 | `fc` | `ALIYUN_REGION`、`ALIYUN_RESOURCE_GROUP_ID`、`ALIYUN_VERSION` |
 
+### 宝塔面板
+
+| 部署方式 | 专属变量 |
+| -------- | -------- |
+| `btpanel` | `BTPANEL_URL`、`BTPANEL_API_KEY` |
+| `btpanel-site` | 追加 `BTPANEL_SITE_NAME`（多个用逗号分隔） |
+| `btpanel-dockersite` | 追加 `BTPANEL_SITE_NAME` |
+| `btpanel-singlesite` | 追加 `BTPANEL_SITE_NAME` |
+
+公共变量：`BTPANEL_URL`、`BTPANEL_API_KEY`，可选 `BTPANEL_IGNORE_SSL`。
+
+### 1Panel
+
+| 部署方式 | 专属变量 |
+| -------- | -------- |
+| `1panel` | `ONEPANEL_URL`、`ONEPANEL_API_KEY` |
+| `1panel-site` | 追加 `ONEPANEL_SITE_ID` |
+
+可选 `ONEPANEL_VERSION`（`v1`/`v2`，默认 v1）、`ONEPANEL_IGNORE_SSL`。
+
+### 雷池 WAF
+
+| 部署方式 | 专属变量 |
+| -------- | -------- |
+| `safeline-panel` | `SAFELINE_URL`、`SAFELINE_API_TOKEN` |
+| `safeline-site` | 追加 `SAFELINE_SITE_NAME` |
+| `safeline-portal` | 同 `safeline-panel` |
+
+可选 `SAFELINE_IGNORE_SSL`。
+
+### 七牛云
+
+公共变量：`QINIU_ACCESS_KEY`、`QINIU_ACCESS_SECRET`：
+
+| 部署方式 | 专属变量 |
+| -------- | -------- |
+| `qiniu-cdn` | `QINIU_DOMAIN`（可选，默认证书主域名） |
+| `qiniu-oss` | `QINIU_DOMAIN`（可选，默认证书主域名） |
+
+### 百度云 / 华为云 / 火山引擎
+
+| 部署方式 | 专属变量 |
+| -------- | -------- |
+| `baidu-cdn` | `BAIDU_ACCESS_KEY`、`BAIDU_SECRET_KEY`、`BAIDU_DOMAIN`（可选） |
+| `huaweicloud-cdn` | `HUAWEI_ACCESS_KEY`、`HUAWEI_SECRET_KEY`、`HUAWEI_DOMAIN`（可选） |
+| `volcengine-cdn` | `VOLC_ACCESS_KEY`、`VOLC_SECRET_KEY`、`VOLC_REGION`、`VOLC_DOMAIN`（可选） |
+| `volcengine-dcdn` | 同 `volcengine-cdn` |
+
+### 多吉云 / LeCDN / 雨云
+
+| 部署方式 | 专属变量 |
+| -------- | -------- |
+| `doge-cdn` | `DOGE_ACCESS_KEY`、`DOGE_SECRET_KEY`、`DOGE_DOMAIN`（可选） |
+| `lecdn` | `LECDN_URL`、`LECDN_USERNAME`、`LECDN_PASSWORD`、`LECDN_SITE_ID`、`LECDN_DOMAIN`（可选） |
+| `rainyun` | `RAINYUN_API_KEY`、`RAINYUN_CERT_ID` |
+
+### Webhook
+
+| 部署方式 | 专属变量 |
+| -------- | -------- |
+| `webhook` | `WEBHOOK_URL`、`WEBHOOK_DATA`、`WEBHOOK_METHOD`、`WEBHOOK_HEADERS` |
+
+`WEBHOOK_DATA` 支持 `__domain__` / `__cert__` / `__key__` 占位符；可选 `WEBHOOK_IGNORE_SSL`。
+
 > 完整字段可用 `tlsctl help:deploy` 查看。

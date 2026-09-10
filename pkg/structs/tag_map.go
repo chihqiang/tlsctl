@@ -1,6 +1,7 @@
 package structs
 
 import (
+	"cmp"
 	"reflect"
 	"sort"
 )
@@ -26,7 +27,6 @@ func TagsMaps[T any](mapConfig map[string]T) KeysMaps[string, Tag] {
 	for k := range mapConfig {
 		keys = append(keys, k)
 	}
-	sort.Strings(keys)
 	for _, name := range keys {
 		config := mapConfig[name]
 		v := reflect.ValueOf(config)
@@ -60,23 +60,7 @@ func TagsMaps[T any](mapConfig map[string]T) KeysMaps[string, Tag] {
 			configFieldType = t
 		}
 		var tags []Tag
-		for i := 0; i < configFieldType.NumField(); i++ {
-			f := configFieldType.Field(i)
-			env := f.Tag.Get("env")
-			if env == "" {
-				continue
-			}
-			tags = append(tags, Tag{
-				Key:   name,
-				Field: f.Name,
-				Type:  f.Type.String(),
-				Json:  f.Tag.Get("json"),
-				Xml:   f.Tag.Get("xml"),
-				Yaml:  f.Tag.Get("yaml"),
-				Env:   env,
-			})
-		}
-
+		collectTags(configFieldType, name, &tags)
 		if len(tags) > 0 {
 			result[name] = tags
 		}
@@ -84,7 +68,38 @@ func TagsMaps[T any](mapConfig map[string]T) KeysMaps[string, Tag] {
 	return OrderMaps[string, Tag](result)
 }
 
-func OrderMaps[K comparable, D any](input map[K][]D) KeysMaps[K, D] {
+// collectTags 递归收集结构体字段的标签，支持嵌入（anonymous）的 struct 与 *struct 字段。
+func collectTags(t reflect.Type, name string, tags *[]Tag) {
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		// 嵌入字段：展开其内部字段，再剔除仅透传的字段自身（如 common.BaseConfig）
+		if f.Anonymous {
+			ft := f.Type
+			if ft.Kind() == reflect.Ptr {
+				ft = ft.Elem()
+			}
+			if ft.Kind() == reflect.Struct {
+				collectTags(ft, name, tags)
+				continue
+			}
+		}
+		env := f.Tag.Get("env")
+		if env == "" {
+			continue
+		}
+		*tags = append(*tags, Tag{
+			Key:   name,
+			Field: f.Name,
+			Type:  f.Type.String(),
+			Json:  f.Tag.Get("json"),
+			Xml:   f.Tag.Get("xml"),
+			Yaml:  f.Tag.Get("yaml"),
+			Env:   env,
+		})
+	}
+}
+
+func OrderMaps[K cmp.Ordered, D any](input map[K][]D) KeysMaps[K, D] {
 	ordered := KeysMaps[K, D]{
 		Keys: make([]K, 0, len(input)),
 		Maps: make(map[K][]D, len(input)),
@@ -93,19 +108,9 @@ func OrderMaps[K comparable, D any](input map[K][]D) KeysMaps[K, D] {
 	for k := range input {
 		ordered.Keys = append(ordered.Keys, k)
 	}
-	// 排序（仅支持常见类型）
+	// 排序
 	sort.Slice(ordered.Keys, func(i, j int) bool {
-		switch any(ordered.Keys[i]).(type) {
-		case string:
-			return any(ordered.Keys[i]).(string) < any(ordered.Keys[j]).(string)
-		case int:
-			return any(ordered.Keys[i]).(int) < any(ordered.Keys[j]).(int)
-		case int64:
-			return any(ordered.Keys[i]).(int64) < any(ordered.Keys[j]).(int64)
-		default:
-			// 不可比较类型，保持原顺序（不排序）
-			return false
-		}
+		return cmp.Less(ordered.Keys[i], ordered.Keys[j])
 	})
 	// 构造有序 map
 	for _, k := range ordered.Keys {

@@ -1,12 +1,11 @@
 package scf
 
+import "github.com/chihqiang/tlsctl/deploy/tencentcloud/common"
+
 type Config struct {
-	// 腾讯云 SecretId。
-	SecretId string `json:"secret_id,omitempty" yaml:"SecretId" xml:"SecretId" env:"TENCENTCLOUD_SECRET_ID"`
-	// 腾讯云 SecretKey。
-	SecretKey string `json:"secret_key,omitempty" yaml:"SecretKey" xml:"SecretKey" env:"TENCENTCLOUD_SECRET_KEY"`
+	common.BaseConfig
 	// 腾讯云地域。
-	Region string `json:"region,omitempty" yaml:"Region" xml:"Region" env:"TENCENTCLOUD_REGION"`
+	Region string `json:"region" yaml:"region" xml:"region" env:"TENCENTCLOUD_REGION"`
 	// 自定义域名（不支持泛域名）。
-	Domain string `json:"domain,omitempty" yaml:"Domain" xml:"Domain" env:"TENCENTCLOUD_DOMAIN"`
+	Domain string `json:"domain" yaml:"domain" xml:"domain" env:"TENCENTCLOUD_DOMAIN"`
 }

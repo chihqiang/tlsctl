@@ -126,6 +126,8 @@ TENCENTCLOUD_DOMAIN_ID=xxx
 tlsctl deploy --domain="example.com" --deploy="waf"
 ```
 
+> 多实例场景可配置 `TENCENTCLOUD_INSTANCE_ID` 指定所属实例。
+
 ### 边缘安全加速 `eo`
 
 ```bash
@@ -133,12 +135,12 @@ TENCENTCLOUD_ZONE_ID=zone-xxx
 tlsctl deploy --domain="example.com" --deploy="eo"
 ```
 
-### VOD 点播 `vod`
+### VOD 点播 `tvod`
 
 ```bash
 TENCENTCLOUD_SUB_APP_ID=123456
 TENCENTCLOUD_DOMAIN=example.com
-tlsctl deploy --domain="example.com" --deploy="vod"
+tlsctl deploy --domain="example.com" --deploy="tvod"
 ```
 
 ## 阿里云部署
@@ -198,6 +200,151 @@ ALIYUN_VERSION=3.0
 ALIYUN_DOMAIN=example.com
 tlsctl deploy --domain="example.com" --deploy="fc"
 ```
+
+## 宝塔面板
+
+### 面板 SSL `btpanel`
+
+```bash
+cat > ~/.tlsctl/.env << EOF
+BTPANEL_URL=https://example.com:8888
+BTPANEL_API_KEY=your_api_key
+EOF
+
+tlsctl deploy --domain="example.com" --deploy="btpanel"
+```
+
+### 网站证书 `btpanel-site`
+
+上传证书到宝塔证书库并绑定到指定网站（多个网站用逗号分隔）：
+
+```bash
+BTPANEL_SITE_NAME=example.com,blog.example.com
+tlsctl deploy --domain="example.com" --deploy="btpanel-site"
+```
+
+> 另有 `btpanel-dockersite`（Docker 面板网站）、`btpanel-singlesite`（旧版单个站点）。
+> 面板使用自签名证书时配置 `BTPANEL_IGNORE_SSL=true`。
+
+## 1Panel
+
+### 面板 SSL `1panel`
+
+```bash
+ONEPANEL_URL=https://example.com:8090
+ONEPANEL_API_KEY=your_api_key
+tlsctl deploy --domain="example.com" --deploy="1panel"
+```
+
+### 网站证书 `1panel-site`
+
+```bash
+ONEPANEL_SITE_ID=1
+tlsctl deploy --domain="example.com" --deploy="1panel-site"
+```
+
+> 1Panel v2 配置 `ONEPANEL_VERSION=v2`；自签名证书配置 `ONEPANEL_IGNORE_SSL=true`。
+
+## 雷池 WAF
+
+```bash
+SAFELINE_URL=https://example.com:9443
+SAFELINE_API_TOKEN=your_api_token
+SAFELINE_SITE_NAME=example.com   # 仅 safeline-site 需要
+
+tlsctl deploy --domain="example.com" --deploy="safeline-site"      # 部署到站点
+tlsctl deploy --domain="example.com" --deploy="safeline-panel"     # 部署到面板
+tlsctl deploy --domain="example.com" --deploy="safeline-portal"    # 部署到认证中心
+```
+
+> 自签名证书配置 `SAFELINE_IGNORE_SSL=true`。
+
+## 七牛云
+
+```bash
+QINIU_ACCESS_KEY=your_access_key
+QINIU_ACCESS_SECRET=your_access_secret
+QINIU_DOMAIN=example.com        # 可选，默认用证书主域名
+
+tlsctl deploy --domain="example.com" --deploy="qiniu-cdn"   # 七牛 CDN
+tlsctl deploy --domain="example.com" --deploy="qiniu-oss"   # 绑定证书中心
+```
+
+## 百度云 CDN `baidu-cdn`
+
+```bash
+BAIDU_ACCESS_KEY=your_access_key
+BAIDU_SECRET_KEY=your_secret_key
+BAIDU_DOMAIN=example.com        # 可选
+tlsctl deploy --domain="example.com" --deploy="baidu-cdn"
+```
+
+## 华为云 CDN `huaweicloud-cdn`
+
+```bash
+HUAWEI_ACCESS_KEY=your_access_key
+HUAWEI_SECRET_KEY=your_secret_key
+HUAWEI_DOMAIN=example.com       # 可选
+tlsctl deploy --domain="example.com" --deploy="huaweicloud-cdn"
+```
+
+## 火山引擎
+
+```bash
+VOLC_ACCESS_KEY=your_access_key
+VOLC_SECRET_KEY=your_secret_key
+VOLC_REGION=cn-north-1
+VOLC_DOMAIN=example.com         # 可选
+
+tlsctl deploy --domain="example.com" --deploy="volcengine-cdn"    # CDN
+tlsctl deploy --domain="example.com" --deploy="volcengine-dcdn"   # DCDN
+```
+
+## 多吉云 CDN `doge-cdn`
+
+```bash
+DOGE_ACCESS_KEY=your_access_key
+DOGE_SECRET_KEY=your_secret_key
+DOGE_DOMAIN=example.com         # 可选
+tlsctl deploy --domain="example.com" --deploy="doge-cdn"
+```
+
+## LeCDN `lecdn`
+
+```bash
+LECDN_URL=https://example.com
+LECDN_USERNAME=your_username
+LECDN_PASSWORD=your_password
+LECDN_SITE_ID=1
+LECDN_DOMAIN=example.com        # 可选
+tlsctl deploy --domain="example.com" --deploy="lecdn"
+```
+
+## 雨云 SSL 中心 `rainyun`
+
+```bash
+RAINYUN_API_KEY=your_api_key
+RAINYUN_CERT_ID=your_cert_id
+tlsctl deploy --domain="example.com" --deploy="rainyun"
+```
+
+## Webhook `webhook`
+
+通过 HTTP 请求推送证书，请求体模板支持 `__domain__` / `__cert__` / `__key__` 占位符：
+
+```bash
+cat > ~/.tlsctl/.env << EOF
+WEBHOOK_URL=https://example.com/api/deploy
+WEBHOOK_METHOD=POST
+WEBHOOK_DATA={"domain":"__domain__","cert":"__cert__","key":"__key__"}
+WEBHOOK_HEADERS="Authorization: Bearer your_token
+Content-Type: application/json"
+EOF
+
+tlsctl deploy --domain="example.com" --deploy="webhook"
+```
+
+> 支持 GET（Query 参数）与 POST/PUT/PATCH；自签名目标配置 `WEBHOOK_IGNORE_SSL=true`。
 
 ## 查看已登记任务
 

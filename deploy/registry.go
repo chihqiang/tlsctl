@@ -9,7 +9,16 @@ import (
 	"github.com/chihqiang/tlsctl/deploy/aliyun/live"
 	"github.com/chihqiang/tlsctl/deploy/aliyun/oss"
 	"github.com/chihqiang/tlsctl/deploy/aliyun/vod"
+	"github.com/chihqiang/tlsctl/deploy/baiduyun"
+	"github.com/chihqiang/tlsctl/deploy/btpanel"
+	"github.com/chihqiang/tlsctl/deploy/doge"
+	"github.com/chihqiang/tlsctl/deploy/huaweicloud"
+	"github.com/chihqiang/tlsctl/deploy/lecdn"
 	"github.com/chihqiang/tlsctl/deploy/local"
+	"github.com/chihqiang/tlsctl/deploy/onepanel"
+	"github.com/chihqiang/tlsctl/deploy/qiniu"
+	"github.com/chihqiang/tlsctl/deploy/rainyun"
+	"github.com/chihqiang/tlsctl/deploy/safeline"
 	"github.com/chihqiang/tlsctl/deploy/ssh"
 	tcdn "github.com/chihqiang/tlsctl/deploy/tencentcloud/cdn"
 	"github.com/chihqiang/tlsctl/deploy/tencentcloud/clb"
@@ -20,6 +29,8 @@ import (
 	tssl "github.com/chihqiang/tlsctl/deploy/tencentcloud/ssl"
 	tvod "github.com/chihqiang/tlsctl/deploy/tencentcloud/vod"
 	"github.com/chihqiang/tlsctl/deploy/tencentcloud/waf"
+	"github.com/chihqiang/tlsctl/deploy/volcengine"
+	"github.com/chihqiang/tlsctl/deploy/webhook"
 )
 
 var deploys = map[string]func() IDeploy{
@@ -45,6 +56,47 @@ var deploys = map[string]func() IDeploy{
 	"oss":  func() IDeploy { return &oss.Deploy{} },
 	"vod":  func() IDeploy { return &vod.Deploy{} },
 	"fc":   func() IDeploy { return &fc.Deploy{} },
+
+	// 宝塔面板
+	"btpanel":            func() IDeploy { return &btpanel.Deploy{} },
+	"btpanel-site":       func() IDeploy { return &btpanel.DeploySite{} },
+	"btpanel-dockersite": func() IDeploy { return &btpanel.DeployDockerSite{} },
+	"btpanel-singlesite": func() IDeploy { return &btpanel.DeploySingleSite{} },
+
+	// 1Panel 面板
+	"1panel":      func() IDeploy { return &onepanel.Deploy{} },
+	"1panel-site": func() IDeploy { return &onepanel.DeploySite{} },
+
+	// 雷池 WAF
+	"safeline-panel":  func() IDeploy { return &safeline.DeployPanel{} },
+	"safeline-site":   func() IDeploy { return &safeline.DeploySite{} },
+	"safeline-portal": func() IDeploy { return &safeline.DeployPortal{} },
+
+	// 七牛云
+	"qiniu-cdn": func() IDeploy { return &qiniu.DeployCdn{} },
+	"qiniu-oss": func() IDeploy { return &qiniu.DeployOss{} },
+
+	// 百度云
+	"baidu-cdn": func() IDeploy { return &baiduyun.Deploy{} },
+
+	// 华为云
+	"huaweicloud-cdn": func() IDeploy { return &huaweicloud.Deploy{} },
+
+	// 火山引擎
+	"volcengine-cdn":  func() IDeploy { return &volcengine.DeployCdn{} },
+	"volcengine-dcdn": func() IDeploy { return &volcengine.DeployDcdn{} },
+
+	// 多吉云
+	"doge-cdn": func() IDeploy { return &doge.Deploy{} },
+
+	// LeCDN
+	"lecdn": func() IDeploy { return &lecdn.Deploy{} },
+
+	// 雨云
+	"rainyun": func() IDeploy { return &rainyun.Deploy{} },
+
+	// Webhook
+	"webhook": func() IDeploy { return &webhook.Deploy{} },
 }
 
 func Register(name string, deploy func() IDeploy) {
@@ -63,9 +115,8 @@ func Get(name string) (IDeploy, error) {
 }
 
 func All() map[string]IDeploy {
-	ds := deploys
-	var m = make(map[string]IDeploy)
-	for s, f := range ds {
+	var m = make(map[string]IDeploy, len(deploys))
+	for s, f := range deploys {
 		m[s] = f()
 	}
 	return m

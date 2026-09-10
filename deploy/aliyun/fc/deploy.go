@@ -5,13 +5,13 @@ import (
 	"fmt"
 
 	"github.com/alibabacloud-go/tea/tea"
-	"github.com/caarlos0/env/v11"
 	"github.com/go-acme/lego/v4/certificate"
 
 	"time"
 
 	alifc3 "github.com/alibabacloud-go/fc-20230330/v4/client"
 	alifc2 "github.com/alibabacloud-go/fc-open-20210406/v2/client"
+	dcommon "github.com/chihqiang/tlsctl/deploy/common"
 )
 
 type Deploy struct {
@@ -19,12 +19,11 @@ type Deploy struct {
 }
 
 func (d *Deploy) WithEnvConfig() error {
-	var cfg Config
-	err := env.Parse(&cfg)
+	cfg, err := dcommon.ParseConfig[Config]()
 	if err != nil {
 		return err
 	}
-	d.Config = &cfg
+	d.Config = cfg
 	return nil
 }
 

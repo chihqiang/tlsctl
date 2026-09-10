@@ -1,7 +1,7 @@
 package huawei
 
 import (
-	"github.com/caarlos0/env/v11"
+	"github.com/chihqiang/tlsctl/pkg/envconfig"
 	"github.com/go-acme/lego/v4/challenge"
 	"github.com/go-acme/lego/v4/providers/dns/huaweicloud"
 	"time"
@@ -9,10 +9,10 @@ import (
 
 type Config struct {
 	AccessKeyId        string `json:"access_key_id" yaml:"AccessKeyID" xml:"AccessKeyID" env:"HUAWEICLOUD_ACCESS_KEY_ID"`
-	SecretAccessKey    string `json:"secret_access_key" yaml:"SecretAccessKey" xml:"HUAWEICLOUD_SECRET_ACCESS_KEY"`
+	SecretAccessKey    string `json:"secret_access_key" yaml:"SecretAccessKey" xml:"SecretAccessKey" env:"HUAWEICLOUD_SECRET_ACCESS_KEY"`
 	Region             string `json:"region" yaml:"Region" xml:"Region" env:"HUAWEICLOUD_REGION"`
-	PropagationTimeout int32  `json:"propagation_timeout,omitempty" env:"HUAWEICLOUD_PROPAGATION_TIMEOUT"`
-	TTL                int32  `json:"ttl,omitempty" env:"HUAWEICLOUD_TTL"`
+	PropagationTimeout int32  `json:"propagation_timeout,omitempty" yaml:"propagationTimeout,omitempty" xml:"propagationTimeout,omitempty" env:"HUAWEICLOUD_PROPAGATION_TIMEOUT"`
+	TTL                int32  `json:"ttl,omitempty" yaml:"ttl,omitempty" xml:"ttl,omitempty" env:"HUAWEICLOUD_TTL"`
 }
 
 type Provider struct {
@@ -20,12 +20,11 @@ type Provider struct {
 }
 
 func (d *Provider) WithEnvConfig() error {
-	var cfg Config
-	err := env.Parse(&cfg)
+	cfg, err := envconfig.ParseConfig[Config]()
 	if err != nil {
 		return err
 	}
-	d.Config = &cfg
+	d.Config = cfg
 	return nil
 }
 func (p *Provider) NewChallengeProvider() (challenge.Provider, error) {

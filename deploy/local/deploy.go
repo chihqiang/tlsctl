@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/caarlos0/env/v11"
 	"github.com/chihqiang/logx"
+	dcommon "github.com/chihqiang/tlsctl/deploy/common"
 	"github.com/chihqiang/tlsctl/resource"
 	"github.com/go-acme/lego/v4/certificate"
 )
@@ -19,12 +19,11 @@ type Deploy struct {
 }
 
 func (p *Deploy) WithEnvConfig() error {
-	var cfg Config
-	err := env.Parse(&cfg)
+	cfg, err := dcommon.ParseConfig[Config]()
 	if err != nil {
 		return err
 	}
-	p.Config = &cfg
+	p.Config = cfg
 	return nil
 }
 

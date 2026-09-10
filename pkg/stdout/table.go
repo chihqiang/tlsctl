@@ -6,6 +6,8 @@ import (
 	"strings"
 	"text/tabwriter"
 	"unicode"
+
+	"github.com/chihqiang/logx"
 )
 
 type TablePrinter struct {
@@ -29,6 +31,7 @@ func (tp *TablePrinter) Add(row []string) {
 		tp.added = true
 	} else {
 		if len(row) != len(tp.headers) {
+			logx.Warn("TablePrinter: row has %d columns, expected %d, skipping: %v", len(row), len(tp.headers), row)
 			return
 		}
 		tp.rows = append(tp.rows, row)
@@ -70,8 +73,7 @@ func (tp *TablePrinter) Print() error {
 		fmt.Fprintln(w, strings.Join(cells, "")+"|")
 	}
 	fmt.Fprintln(w, border)
-	w.Flush()
-	return nil
+	return w.Flush()
 }
 
 // ==================== 私有方法 ====================

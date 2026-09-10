@@ -3,8 +3,8 @@ package dynv6
 import (
 	"time"
 
-	"github.com/caarlos0/env/v11"
 	"github.com/chihqiang/tlsctl/dns/dynv6/lego"
+	"github.com/chihqiang/tlsctl/pkg/envconfig"
 	"github.com/go-acme/lego/v4/challenge"
 )
 
@@ -19,12 +19,11 @@ type Provider struct {
 }
 
 func (d *Provider) WithEnvConfig() error {
-	var cfg Config
-	err := env.Parse(&cfg)
+	cfg, err := envconfig.ParseConfig[Config]()
 	if err != nil {
 		return err
 	}
-	d.Config = &cfg
+	d.Config = cfg
 	return nil
 }
 func (p *Provider) NewChallengeProvider() (challenge.Provider, error) {
