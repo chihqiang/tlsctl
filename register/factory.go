@@ -1,14 +1,9 @@
 package register
 
-func GetRegister(kid, hmacEncoded string) (register IRegister) {
-	if kid != "" && hmacEncoded != "" {
-		register = &EABRegister{
-			TermsOfServiceAgreed: true,
-			Kid:                  kid,
-			HmacEncoded:          hmacEncoded,
-		}
-	} else {
-		register = &Register{}
+func GetRegister(kid, hmacEncoded string) IRegister {
+	return &Register{
+		TermsOfServiceAgreed: true,
+		Kid:                  kid,
+		HmacEncoded:          hmacEncoded,
 	}
-	return register
 }

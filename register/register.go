@@ -6,8 +6,18 @@ import (
 )
 
 type Register struct {
+	TermsOfServiceAgreed bool
+	Kid                  string
+	HmacEncoded          string
 }
 
-func (r *Register) Register(lego *lego.Client) (*registration.Resource, error) {
-	return lego.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: true})
+func (r *Register) Register(client *lego.Client) (*registration.Resource, error) {
+	if r.Kid != "" && r.HmacEncoded != "" {
+		return client.Registration.RegisterWithExternalAccountBinding(registration.RegisterEABOptions{
+			TermsOfServiceAgreed: r.TermsOfServiceAgreed,
+			Kid:                  r.Kid,
+			HmacEncoded:          r.HmacEncoded,
+		})
+	}
+	return client.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: r.TermsOfServiceAgreed})
 }

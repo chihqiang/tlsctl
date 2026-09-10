@@ -1,6 +1,7 @@
 package structs
 
 import (
+	"cmp"
 	"reflect"
 	"sort"
 )
@@ -26,7 +27,6 @@ func TagsMaps[T any](mapConfig map[string]T) KeysMaps[string, Tag] {
 	for k := range mapConfig {
 		keys = append(keys, k)
 	}
-	sort.Strings(keys)
 	for _, name := range keys {
 		config := mapConfig[name]
 		v := reflect.ValueOf(config)
@@ -99,7 +99,7 @@ func collectTags(t reflect.Type, name string, tags *[]Tag) {
 	}
 }
 
-func OrderMaps[K comparable, D any](input map[K][]D) KeysMaps[K, D] {
+func OrderMaps[K cmp.Ordered, D any](input map[K][]D) KeysMaps[K, D] {
 	ordered := KeysMaps[K, D]{
 		Keys: make([]K, 0, len(input)),
 		Maps: make(map[K][]D, len(input)),
@@ -108,19 +108,9 @@ func OrderMaps[K comparable, D any](input map[K][]D) KeysMaps[K, D] {
 	for k := range input {
 		ordered.Keys = append(ordered.Keys, k)
 	}
-	// 排序（仅支持常见类型）
+	// 排序
 	sort.Slice(ordered.Keys, func(i, j int) bool {
-		switch any(ordered.Keys[i]).(type) {
-		case string:
-			return any(ordered.Keys[i]).(string) < any(ordered.Keys[j]).(string)
-		case int:
-			return any(ordered.Keys[i]).(int) < any(ordered.Keys[j]).(int)
-		case int64:
-			return any(ordered.Keys[i]).(int64) < any(ordered.Keys[j]).(int64)
-		default:
-			// 不可比较类型，保持原顺序（不排序）
-			return false
-		}
+		return cmp.Less(ordered.Keys[i], ordered.Keys[j])
 	})
 	// 构造有序 map
 	for _, k := range ordered.Keys {

@@ -44,7 +44,7 @@ func Get(name string) (challenge.Provider, error) {
 }
 func All() map[string]IDNSProvider {
 	ds := providers
-	var m = make(map[string]IDNSProvider)
+	var m = make(map[string]IDNSProvider, len(ds))
 	for s, f := range ds {
 		m[s] = f()
 	}

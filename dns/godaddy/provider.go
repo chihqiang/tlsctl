@@ -1,10 +1,11 @@
 package godaddy
 
 import (
-	"github.com/caarlos0/env/v11"
+	"time"
+
+	"github.com/chihqiang/tlsctl/pkg/envconfig"
 	"github.com/go-acme/lego/v4/challenge"
 	"github.com/go-acme/lego/v4/providers/dns/godaddy"
-	"time"
 )
 
 type Config struct {
@@ -19,12 +20,11 @@ type Provider struct {
 }
 
 func (p *Provider) WithEnvConfig() error {
-	var cfg Config
-	err := env.Parse(&cfg)
+	cfg, err := envconfig.ParseConfig[Config]()
 	if err != nil {
 		return err
 	}
-	p.Config = &cfg
+	p.Config = cfg
 	return nil
 }
 func (p *Provider) NewChallengeProvider() (challenge.Provider, error) {

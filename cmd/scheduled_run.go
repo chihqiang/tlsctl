@@ -75,7 +75,7 @@ func runScheduled(in *cli.Input) {
 			}
 			daysLeft := int(time.Until(cert.NotAfter).Hours() / 24)
 			logx.Info("%s will expire in %d days", domain, daysLeft)
-			if daysLeft < in.Int("day") {
+			if daysLeft < in.Int(flgDay) {
 				renew = true
 				resource, err = buildLegoSSL(in, []string{domain})
 				if err != nil {

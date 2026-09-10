@@ -21,12 +21,8 @@ import (
 	"github.com/go-acme/lego/v4/lego"
 )
 
-func getEmail(in *cli.Input) (string, error) {
-	email := in.String(flgEmail)
-	if email == "" {
-		email = generatedEmail()
-	}
-	return email, nil
+func getEmail(in *cli.Input) string {
+	return in.String(flgEmail)
 }
 
 // generatedEmail 生成一个确定性的默认邮箱：tlsctl-<hostname>@<os>.com。
@@ -60,11 +56,7 @@ func getDeployJson(in *cli.Input) string {
 }
 
 func setupAccountCache(in *cli.Input) (*account.Cache, error) {
-	email, err := getEmail(in)
-	if err != nil {
-		return nil, err
-	}
-	cache, err := account.NewCache(in.String(flgPath), email, in.String(flgServer))
+	cache, err := account.NewCache(in.String(flgPath), getEmail(in), in.String(flgServer))
 	if err != nil {
 		return nil, fmt.Errorf("creating accounts cache: %w", err)
 	}

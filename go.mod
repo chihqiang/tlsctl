@@ -12,13 +12,10 @@ require (
 	github.com/alibabacloud-go/tea v1.4.0
 	github.com/alibabacloud-go/vod-20170321/v4 v4.8.4
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
-	github.com/baidubce/bce-sdk-go v0.9.265
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/chihqiang/cli v0.1.0
 	github.com/chihqiang/logx v0.1.0
 	github.com/go-acme/lego/v4 v4.35.2
-	github.com/google/uuid v1.6.0
-	github.com/jdcloud-api/jdcloud-sdk-go v1.64.0
 	github.com/joho/godotenv v1.5.1
 	github.com/libdns/dynv6 v1.0.0
 	github.com/libdns/libdns v0.1.0
@@ -96,6 +93,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.42.0 // indirect
 	github.com/aws/smithy-go v1.25.0 // indirect
 	github.com/aziontech/azionapi-go-sdk v0.144.0 // indirect
+	github.com/baidubce/bce-sdk-go v0.9.265 // indirect
 	github.com/benbjohnson/clock v1.3.5 // indirect
 	github.com/bodgit/tsig v1.2.2 // indirect
 	github.com/boombuler/barcode v1.0.1 // indirect
@@ -136,6 +134,7 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.14 // indirect
 	github.com/googleapis/gax-go/v2 v2.21.0 // indirect
 	github.com/gophercloud/gophercloud v1.14.1 // indirect

@@ -7,7 +7,6 @@ import (
 
 	"github.com/chihqiang/tlsctl/challenge/dns"
 	"github.com/chihqiang/tlsctl/challenge/http"
-	"github.com/chihqiang/tlsctl/challenge/httpport"
 	"github.com/chihqiang/tlsctl/challenge/memcached"
 	"github.com/chihqiang/tlsctl/challenge/s3"
 	"github.com/chihqiang/tlsctl/challenge/tls"
@@ -51,7 +50,7 @@ func SetConfigChallenge(client *lego.Client, cfg Config) error {
 		httpChallenges = append(httpChallenges, &s3.Challenge{Bucket: cfg.S3Bucket})
 	}
 	if cfg.HTTPPort != "" {
-		httpChallenges = append(httpChallenges, &httpport.Challenge{HostPort: cfg.HTTPPort})
+		httpChallenges = append(httpChallenges, &http.Challenge{HostPort: cfg.HTTPPort})
 	}
 	if cfg.HTTPProxyHeader != "" {
 		httpChallenges = append(httpChallenges, &http.Challenge{HeaderName: cfg.HTTPProxyHeader})

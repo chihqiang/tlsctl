@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/chihqiang/logx"
 	"github.com/chihqiang/tlsctl/pkg/certificates"
 	"github.com/chihqiang/tlsctl/pkg/fp"
 	"github.com/go-acme/lego/v4/certcrypto"
@@ -35,12 +36,7 @@ type Cache struct {
 }
 
 func NewCache(path, pfxFormat string) (s *Cache, err error) {
-	switch pfxFormat {
-	case "DES", "RC2", "SHA256":
-	default:
-		err = fmt.Errorf("invalid PFX format: %s", pfxFormat)
-	}
-	if err != nil {
+	if _, err := pfxEncoder(pfxFormat); err != nil {
 		return nil, err
 	}
 	rootPath := filepath.Join(path, baseCertificatesFolderName)
@@ -89,13 +85,16 @@ func (s *Cache) GetAllDomainResources() ([]*certificate.Resource, error) {
 		var tmpResource *certificate.Resource
 		jsonBytes, err := os.ReadFile(jsonFile)
 		if err != nil {
+			logx.Warn("failed to read certificate meta %s: %v", jsonFile, err)
 			continue
 		}
 		if err := json.Unmarshal(jsonBytes, &tmpResource); err != nil {
+			logx.Warn("failed to parse certificate meta %s: %v", jsonFile, err)
 			continue
 		}
 		resource, err := s.ReadResource(tmpResource.Domain)
 		if err != nil {
+			logx.Warn("failed to load certificate for %s: %v", tmpResource.Domain, err)
 			continue
 		}
 		resources = append(resources, resource)
@@ -159,46 +158,44 @@ func (s *Cache) writeCertificateFiles(domain string, certRes *certificate.Resour
 	}
 	return nil
 }
-func (s *Cache) writePFXFile(domain string, certRes *certificate.Resource) error {
+func (s *Cache) writePFXFile(sanitizedDomain string, certRes *certificate.Resource) error {
 	certPemBlock, _ := pem.Decode(certRes.Certificate)
 	if certPemBlock == nil {
-		return fmt.Errorf("unable to parse Certificate for domain %s", domain)
+		return fmt.Errorf("unable to parse Certificate for domain %s", sanitizedDomain)
 	}
 	cert, err := x509.ParseCertificate(certPemBlock.Bytes)
 	if err != nil {
-		return fmt.Errorf("unable to load Certificate for domain %s: %w", domain, err)
+		return fmt.Errorf("unable to load Certificate for domain %s: %w", sanitizedDomain, err)
 	}
 	certChain, err := s.getCertificateChain(certRes)
 	if err != nil {
-		return fmt.Errorf("unable to get certificate chain for domain %s: %w", domain, err)
+		return fmt.Errorf("unable to get certificate chain for domain %s: %w", sanitizedDomain, err)
 	}
 	privateKey, err := certificates.ParseX509(certRes.PrivateKey)
 	if err != nil {
-		return fmt.Errorf("unable to parse private key for domain %s: %w", domain, err)
+		return fmt.Errorf("unable to parse private key for domain %s: %w", sanitizedDomain, err)
 	}
-	encoder, err := s.getPFXEncoder(s.pfxFormat)
+	encoder, err := pfxEncoder(s.pfxFormat)
 	if err != nil {
 		return fmt.Errorf("PFX encoder: %w", err)
 	}
 	pfxBytes, err := encoder.Encode(privateKey, cert, certChain, s.pfxPassword)
 	if err != nil {
-		return fmt.Errorf("unable to encode PFX data for domain %s: %w", domain, err)
+		return fmt.Errorf("unable to encode PFX data for domain %s: %w", sanitizedDomain, err)
 	}
-	return s.writeFile(domain, PfxExt, pfxBytes)
+	return s.writeFile(sanitizedDomain, PfxExt, pfxBytes)
 }
-func (s *Cache) getPFXEncoder(pfxFormat string) (*pkcs12.Encoder, error) {
-	var encoder *pkcs12.Encoder
+func pfxEncoder(pfxFormat string) (*pkcs12.Encoder, error) {
 	switch pfxFormat {
 	case "SHA256":
-		encoder = pkcs12.Modern2023
+		return pkcs12.Modern2023, nil
 	case "DES":
-		encoder = pkcs12.LegacyDES
+		return pkcs12.LegacyDES, nil
 	case "RC2":
-		encoder = pkcs12.LegacyRC2
+		return pkcs12.LegacyRC2, nil
 	default:
 		return nil, fmt.Errorf("invalid PFX format: %s", pfxFormat)
 	}
-	return encoder, nil
 }
 func (s *Cache) getCertificateChain(certRes *certificate.Resource) ([]*x509.Certificate, error) {
 	chainCertPemBlock, rest := pem.Decode(certRes.IssuerCertificate)

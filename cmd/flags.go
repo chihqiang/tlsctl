@@ -34,6 +34,8 @@ const (
 	flgKeyType = "key-type"
 
 	flgInterval = "interval"
+
+	flgDay = "day"
 )
 
 const (
@@ -138,7 +140,6 @@ func httpPortFlag() cli.Flag {
 	return &cli.StringFlag{
 		Name:  flgHTTPPort,
 		Usage: "Set the port and interface to use for HTTP-01 based challenges to listen on. Supported: interface:port or :port.",
-		Value: ":80",
 	}
 }
 
@@ -160,7 +161,6 @@ func tlsPortFlag() cli.Flag {
 	return &cli.StringFlag{
 		Name:  flgTLSPort,
 		Usage: "Set the port and interface to use for TLS-ALPN-01 based challenges to listen on. Supported: interface:port or :port.",
-		Value: ":443",
 	}
 }
 
@@ -199,7 +199,7 @@ func intervalFlag() cli.Flag {
 
 func dayFlag() cli.Flag {
 	return &cli.IntFlag{
-		Name:    "day",
+		Name:    flgDay,
 		Usage:   "When the expiration date is less than a few days, it will be regenerated",
 		Value:   1,
 		Sources: cli.EnvVars(envDay),
