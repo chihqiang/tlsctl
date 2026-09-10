@@ -63,9 +63,8 @@ func Get(name string) (IDeploy, error) {
 }
 
 func All() map[string]IDeploy {
-	ds := deploys
-	var m = make(map[string]IDeploy)
-	for s, f := range ds {
+	var m = make(map[string]IDeploy, len(deploys))
+	for s, f := range deploys {
 		m[s] = f()
 	}
 	return m

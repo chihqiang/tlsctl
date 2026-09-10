@@ -1,6 +1,6 @@
-package ssl
+package common
 
-type Config struct {
+type BaseConfig struct {
 	// 腾讯云 SecretId。
 	SecretId string `json:"secret_id" yaml:"secretId" xml:"secretId" env:"TENCENTCLOUD_SECRET_ID"`
 	// 腾讯云 SecretKey。
