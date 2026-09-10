@@ -126,6 +126,8 @@ TENCENTCLOUD_DOMAIN_ID=xxx
 tlsctl deploy --domain="example.com" --deploy="waf"
 ```
 
+> 多实例场景可配置 `TENCENTCLOUD_INSTANCE_ID` 指定所属实例。
+
 ### 边缘安全加速 `eo`
 
 ```bash
@@ -133,12 +135,12 @@ TENCENTCLOUD_ZONE_ID=zone-xxx
 tlsctl deploy --domain="example.com" --deploy="eo"
 ```
 
-### VOD 点播 `vod`
+### VOD 点播 `tvod`
 
 ```bash
 TENCENTCLOUD_SUB_APP_ID=123456
 TENCENTCLOUD_DOMAIN=example.com
-tlsctl deploy --domain="example.com" --deploy="vod"
+tlsctl deploy --domain="example.com" --deploy="tvod"
 ```
 
 ## 阿里云部署
