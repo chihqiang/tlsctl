@@ -1,6 +1,7 @@
 package clb
 
 import (
+	tccommon "github.com/chihqiang/tlsctl/deploy/tencentcloud/common"
 	tcclb "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/clb/v20180317"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
@@ -13,15 +14,12 @@ type Clients struct {
 }
 
 func newClient(secretId, secretKey, region string) (*Clients, error) {
-	credential := common.NewCredential(secretId, secretKey)
-
-	// 注意虽然官方文档中地域无需指定，但实际需要部署到 CLB 时必传
-	sslClient, err := tcssl.NewClient(credential, region, profile.NewClientProfile())
+	sslClient, err := tccommon.NewSSLClient(secretId, secretKey, region) // 注意虽然官方文档中地域无需指定，但实际需要部署到 CLB 时必传
 	if err != nil {
 		return nil, err
 	}
 
-	clbClient, err := tcclb.NewClient(credential, region, profile.NewClientProfile())
+	clbClient, err := tcclb.NewClient(common.NewCredential(secretId, secretKey), region, profile.NewClientProfile())
 	if err != nil {
 		return nil, err
 	}

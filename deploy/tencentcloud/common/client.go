@@ -12,14 +12,18 @@ type Clients struct {
 	CDN *tccdn.Client
 }
 
-func NewClients(secretId, secretKey string) (*Clients, error) {
+func NewSSLClient(secretId, secretKey, region string) (*tcssl.Client, error) {
 	credential := common.NewCredential(secretId, secretKey)
+	return tcssl.NewClient(credential, region, profile.NewClientProfile())
+}
 
-	sslClient, err := tcssl.NewClient(credential, "", profile.NewClientProfile())
+func NewClients(secretId, secretKey string) (*Clients, error) {
+	sslClient, err := NewSSLClient(secretId, secretKey, "")
 	if err != nil {
 		return nil, err
 	}
 
+	credential := common.NewCredential(secretId, secretKey)
 	cdnClient, err := tccdn.NewClient(credential, "", profile.NewClientProfile())
 	if err != nil {
 		return nil, err

@@ -1,10 +1,9 @@
 package clb
 
+import "github.com/chihqiang/tlsctl/deploy/tencentcloud/common"
+
 type Config struct {
-	// 腾讯云 SecretId。
-	SecretId string `json:"secretId" yaml:"secretId" xml:"SecretId" env:"TENCENTCLOUD_SECRET_ID"`
-	// 腾讯云 SecretKey。
-	SecretKey string `json:"secretKey" yaml:"secretKey" xml:"SecretKey" env:"TENCENTCLOUD_SECRET_KEY"`
+	common.BaseConfig
 	// 腾讯云地域。
 	Region string `json:"region" yaml:"region" xml:"region" env:"TENCENTCLOUD_REGION"`
 	// 部署资源类型。 ssl-deploy loadbalancer listener ruledomain

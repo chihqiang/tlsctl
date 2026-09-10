@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/caarlos0/env/v11"
+	dcommon "github.com/chihqiang/tlsctl/deploy/common"
 	"github.com/go-acme/lego/v4/certificate"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	tcssl "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/ssl/v20191205"
@@ -16,12 +16,11 @@ type Deploy struct {
 }
 
 func (d *Deploy) WithEnvConfig() error {
-	var cfg Config
-	err := env.Parse(&cfg)
+	cfg, err := dcommon.ParseConfig[Config]()
 	if err != nil {
 		return err
 	}
-	d.Config = &cfg
+	d.Config = cfg
 	return nil
 }
 func (d *Deploy) Deploy(ctx context.Context, certificate *certificate.Resource) error {
