@@ -14,7 +14,7 @@
 
 ☁️ **支持多种 DNS 服务商**：兼容阿里云、西部数码、京东云、百度云、腾讯云、华为云、AWS、GoDaddy、Cloudflare 等主流 DNS 平台
 
-🚀 **多种部署方式支持**：支持本地部署、SSH 部署、腾讯云、阿里云等自动上传部署方式
+🚀 **多种部署方式支持**：支持本地部署、SSH 部署，以及腾讯云、阿里云、宝塔面板、1Panel、雷池 WAF、七牛云、百度云、华为云、火山引擎、多吉云、LeCDN、雨云、Webhook 等自动部署方式
 
 ## ⚡ 安装
 
@@ -66,7 +66,7 @@ tlsctl scheduled:run
 | ---- | ---- |
 | [命令详解](docs/commands.md) | 全部子命令与参数 |
 | [环境变量配置](docs/env.md) | `.env` 与 DNS/部署环境变量 |
-| [部署方式](docs/deploy.md) | local / SSH / 腾讯云 / 阿里云 等 |
+| [部署方式](docs/deploy.md) | local / SSH / 腾讯云 / 阿里云 / 宝塔 / 1Panel / 雷池 WAF / 七牛云 / 百度云 / 华为云 / 火山引擎 / 多吉云 / LeCDN / 雨云 / Webhook |
 | [定时任务](docs/scheduled.md) | 自动续签与 systemd 配置 |
 | [Nginx 配置](docs/nginx.md) | 与 Nginx 配合示例 |
 | [EAB 使用](docs/eab.md) | ZeroSSL / Google CA 配置 |

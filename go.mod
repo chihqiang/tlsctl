@@ -12,15 +12,19 @@ require (
 	github.com/alibabacloud-go/tea v1.4.0
 	github.com/alibabacloud-go/vod-20170321/v4 v4.8.4
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible
+	github.com/baidubce/bce-sdk-go v0.9.265
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/chihqiang/cli v0.1.0
 	github.com/chihqiang/logx v0.1.0
 	github.com/go-acme/lego/v4 v4.35.2
+	github.com/go-resty/resty/v2 v2.17.2
+	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.192
 	github.com/joho/godotenv v1.5.1
 	github.com/libdns/dynv6 v1.0.0
 	github.com/libdns/libdns v0.1.0
 	github.com/pkg/sftp v1.13.9
 	github.com/povsister/scp v0.0.0-20250504051308-e467f71ea63c
+	github.com/qiniu/go-sdk/v7 v7.25.3
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/cdn v1.0.1193
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/clb v1.0.1188
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.3.83
@@ -29,6 +33,7 @@ require (
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/teo v1.0.1198
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/vod v1.0.1183
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/waf v1.0.1199
+	github.com/volcengine/volcengine-go-sdk v1.1.11
 	golang.org/x/crypto v0.50.0
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f
 	golang.org/x/net v0.53.0
@@ -57,6 +62,7 @@ require (
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/AzureAD/microsoft-authentication-library-for-go v1.6.0 // indirect
+	github.com/BurntSushi/toml v1.6.0 // indirect
 	github.com/akamai/AkamaiOPEN-edgegrid-golang/v13 v13.1.0 // indirect
 	github.com/alexbrainman/sspi v0.0.0-20180613141037-e580b900e9f5 // indirect
 	github.com/alibabacloud-go/alibabacloud-gateway-fc-util v0.0.7 // indirect
@@ -93,7 +99,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.42.0 // indirect
 	github.com/aws/smithy-go v1.25.0 // indirect
 	github.com/aziontech/azionapi-go-sdk v0.144.0 // indirect
-	github.com/baidubce/bce-sdk-go v0.9.265 // indirect
 	github.com/benbjohnson/clock v1.3.5 // indirect
 	github.com/bodgit/tsig v1.2.2 // indirect
 	github.com/boombuler/barcode v1.0.1 // indirect
@@ -124,7 +129,6 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.23.0 // indirect
-	github.com/go-resty/resty/v2 v2.17.2 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/gofrs/flock v0.13.0 // indirect
@@ -145,7 +149,6 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.8 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/huaweicloud/huaweicloud-sdk-go-v3 v0.1.192 // indirect
 	github.com/iij/doapi v0.0.0-20190504054126-0bbf12d6d7df // indirect
 	github.com/infobloxopen/infoblox-go-client/v2 v2.11.0 // indirect
 	github.com/jcmturner/aescts/v2 v2.0.0 // indirect
@@ -155,6 +158,7 @@ require (
 	github.com/jcmturner/gokrb5/v8 v8.4.4 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/jinzhu/copier v0.4.0 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.13-0.20220915233716-71ac16282d12 // indirect
 	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213 // indirect
 	github.com/kolo/xmlrpc v0.0.0-20220921171641-a4b6fa1dd06b // indirect
